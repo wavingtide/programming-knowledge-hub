@@ -57,6 +57,18 @@ echo This is a message
 This is a message
 ```
 
+### export
+Set environment variable in shell.
+Example: Add a new directory to the PATH environment variable.
+``` bash
+export PATH="/bin/myscripts:$PATH"
+```
+
+One can add the above line in rc file (eg: `~/.bashrc`) to make the environment variable permanent.
+``` bash
+echo 'export PATH="/bin/myscripts:$PATH"' >> ~/.bashrc 
+```
+
 ### ls
 List directory
 ``` bash
@@ -129,6 +141,14 @@ Package manager is a tool that allows users to install, remove, upgrade, configu
 
 RPM: Yum, DNF  
 DEB: apt-get, aptitude
+
+### Runtime Configuration (RC) file
+The `rc` file is the main configuration file for the shell. The commands in this file are run every time a new shell is launched.
+Example: ~/.bashrc file
+After making changes to the rc file, to make the changes take effects, run
+``` bash
+source ~/.bashrc
+```
 
 ### snap
 If snap is not installed, on ubuntu/debian, run

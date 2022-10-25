@@ -8,6 +8,8 @@ Network adapter
 
 Network Address Translation (NAT)
 
-NIC (Network Interface Card)
+Network Interface Card (NIC)
+
+Secure Socket Layer (SSL) Cert
 
 Virtual LAN (VLAN)
