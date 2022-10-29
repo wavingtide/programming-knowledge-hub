@@ -43,7 +43,7 @@
 ├── [programming-language](programming-language/)  
 │    ├── [README.md](programming-language/README.md) (e)  
 │    └── [python](programming-language/python/)  
-│           └── [poetry.md](programming-language/python/poetry.md) (cur)  
+│           └── [poetry.md](programming-language/python/poetry.md)  
 └── [programming-philosophy](programming-philosophy/)  
        └── [README.md](programming-philosophy/README.md) (e)  
 
