@@ -184,7 +184,10 @@ grep -l "unix" *
 # find the patterns in the file (case insensitive)
 grep -i "UNix" file.txt
 ```
-
+``` bash
+# use with pipe (select the outputs with certain pattern)
+ls -l | grep "Aug"
+```
 
 ### tee
 Reads from the standard input and writes to both standard output and one or more files at the same time.

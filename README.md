@@ -43,6 +43,7 @@
 ├── [programming-language](programming-language/)  
 │    ├── [README.md](programming-language/README.md) (e)  
 │    └── [python](programming-language/python/)  
+│           └── [pipx.md](programming-language/python/pipx.md)  
 │           └── [poetry.md](programming-language/python/poetry.md)  
 └── [programming-philosophy](programming-philosophy/)  
        └── [README.md](programming-philosophy/README.md) (e)  
@@ -95,6 +96,7 @@
 ├── programming-language
 │   ├── README.md
 │   └── python
+│       └── pipx.md
 │       └── poetry.md
 └── programming-philosophy
     └── README.md
