@@ -45,9 +45,12 @@
 │    └── [python](programming-language/python/)  
 │           └── [pipx.md](programming-language/python/pipx.md)  
 │           └── [poetry.md](programming-language/python/poetry.md)  
-└── [programming-philosophy](programming-philosophy/)  
-       └── [README.md](programming-philosophy/README.md) (e)  
-
+├── [programming-philosophy](programming-philosophy/)  
+│       └── [README.md](programming-philosophy/README.md) (e)  
+└── [web-framework](web-framework/)  
+       ├── [README.md](web-framework/README.md) (wip)  
+       └── [fastapi](web-framework/fastapi/)  
+             └── [fastapi.md](web-framework/fastapi/fastapi.md) (cur)  
 ### Status
 - e - empty
 - wip - work in progress
@@ -98,7 +101,11 @@
 │   └── python
 │       └── pipx.md
 │       └── poetry.md
-└── programming-philosophy
-    └── README.md
+├── programming-philosophy
+│   └── README.md
+└── web-framework
+    ├── README.md
+    └── fastapi
+        └── fastapi.md
 
 ```
