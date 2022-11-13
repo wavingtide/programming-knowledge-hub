@@ -19,7 +19,16 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [Customization options](#customization-options)
     - [Make Query Parameters Required](#make-query-parameters-required)
     - [Multiple Values for Query Parameters](#multiple-values-for-query-parameters)
+  - [Intermediate: Request Body](#intermediate-request-body)
+    - [Singular Type Body Parameter](#singular-type-body-parameter)
+    - [Multiple Request Body Parameters](#multiple-request-body-parameters)
+    - [Pydantic Model Customization](#pydantic-model-customization)
+    - [Nested Pydantic Models](#nested-pydantic-models)
+    - [Pydantic Model as List](#pydantic-model-as-list)
+    - [Pydantic Model Without Fixed Schema](#pydantic-model-without-fixed-schema)
+    - [Advanced Datatype from Pydantic](#advanced-datatype-from-pydantic)
 - [Miscellaneous](#miscellaneous)
+  - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
     - [Order Function Parameters as you Need](#order-function-parameters-as-you-need)
 
@@ -154,7 +163,7 @@ We can combine multiple path and query parameters.
 @app.get("/users/{user_id}/items/{item_id}")
 async def read_user_item(
     user_id: int, item_id: str, text: Union[str, None] = None, short: bool = False
-):
+    ):
     return {
         "item_id": item_id, 
         "owner_id": user_id
@@ -213,14 +222,14 @@ async def create_item(item_id: int, item: Item, q: Union[str, None] = None):
 ```
 
 ## Intermediate: Query and Path Parameters Customization
-We can set the default value of the function parameters as a `Query` or `Path` object. As it is an object, it comes with more customizations options. (both are subclass of `Param` class)
+We can set the default value of the function parameters as a `Query` or `Path` object. As it is an object, it comes with more customizations options. (both are subclass of `Param` class, which is subclass of Pydantic's `FieldInfo` class.)
 ``` python
 from fastapi import FastAPI, Path, Query
 
 @app.get("/items/{item_id}")
 async def read_items(
-  item_id: int = Path(title="Item ID")
-  q: Union[str, None] = Query(default=None, max_length=50)
+    item_id: int = Path(title="Item ID")
+    q: Union[str, None] = Query(default=None, max_length=50)
   ):
   return {"q": q}
 ```
@@ -244,6 +253,15 @@ async def read_items(
   - `deprecated=True`
   - `include_in_schema=False` (exclude from OpenAPI schema and documentation)
 
+``` python
+@app.get("/items/{item_id}")
+async def read_items(
+      q: str = Query(title="Title", min_length=1)
+      item_id: int = Path(default=50, gt=0, le=100)
+    ):
+    return {"q": q}
+```
+
 ### Make Query Parameters Required
 To make query parameters required, modify the typehint to not accept `None`, and do one of the following:
 - Set `default=None`
@@ -253,13 +271,19 @@ Else, if the query parameters can accept `None`, do one of the following:
 - Set `default=...` (so called Ellipsis in Python)
 - Run `from pydantic import Required` and set `default=Required`
 
+``` python
+@app.get("/items")
+async def read_items(q: int = Query(default=..., gt=0, lt=100)):
+    return {"q": q}
+```
+
 ### Multiple Values for Query Parameters
 Set the typehint as a `List`. (Need to set default value as `Query` object to avoid fastapi identifying it as request body)
 
-Example: 
 ``` python
+@app.get("/items")
 async def read_items(q: Union[List[str], None] = Query(default=None)):
-  return {"q": q}
+    return {"q": q}
 ```
 URL will look like
 ``` bash
@@ -275,7 +299,144 @@ Reponse
 }
 ```
 
+## Intermediate: Request Body
+### Singular Type Body Parameter
+If you want to make a singular type parameter (`int`, `str`, etcs) a body parameter instead of a query parameter, you can use `Body`. It provides the same customizations and validations as `Query` and `Path`.
+``` python
+@app.post("/items")
+async def update_item(price: int = Body()):
+    return price
+```
+It will expect a single integer as request body in this case (eg: `10`).
+
+If there is only 1 singular type body parameters, it might be better to add `embed=True` to embed the body parameter.
+``` python
+@app.post("/items")
+async def update_item(price: int = Body(embed=True)):
+    return price
+```
+
+The expected FastAPI input will be like
+``` python
+{
+  "price": 0
+}
+```
+
+### Multiple Request Body Parameters
+You can declare multiple body parameter.
+
+``` python
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = None
+
+class User(BaseModel):
+    username: str
+    full_name: Union[str, None] = None
+
+@app.put("/items/{item_id}")
+async def update_item(item_id: int, item: Item, user: User, price: int = Body()):
+    results = {"item_id": item_id, "item": item, "user": user}
+    return results
+```
+When there are multiple body parameters,FastAPI will use the parameter names as keys of the request body . An example of valid inputs:
+``` python
+{
+    "item": {
+        "name": "Foo",
+        "description": "The fighter"
+    },
+    "user": {
+        "username": "wave",
+        "full_name": "Wave"
+    },
+    "price": 100
+}
+```
+
+### Pydantic Model Customization
+We can set the default value of the function parameters as a `Field` object. It works the same as `Query`, `Path` and `Body`. (note that `Field` is imported from `Pydantic` instead of `fastapi`.)
+``` python
+from pydantic import BaseModel, Field
+
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = Field(default=None, max_length=300)
+```
+
+### Nested Pydantic Models
+You can typehint the attribute of `Pydantic` model with another `Pydantic` model object.
+
+``` python
+class Image(BaseModel):
+    url: str
+    name: str
+
+class Item(BaseModel):
+    name: str
+    image: Union[Image, None] = None
+```
+
+An example of FastAPI expected input:
+``` python
+{
+    "name": "Foo",
+    "image": {
+        "url": "http://example.com/baz.jpg",
+        "name": "The Foo live"
+    }
+}
+```
+
+### Pydantic Model as List
+Typehint the parameter using `List`.
+``` python
+class Image(BaseModel):
+    url: HttpUrl
+    name: str
+
+@app.post("/images/multiple/")
+async def create_multiple_images(images: List[Image]):
+    return images
+```
+
+### Pydantic Model Without Fixed Schema
+Typehint the parameter using `Dict`. Example: `Dict[str, float]` will accept str key and float value.
+``` python
+@app.post("/index-weights/")
+async def create_index_weights(weights: Dict[str, float]):
+    return weights
+```
+
+### Advanced Datatype from Pydantic
+Refer to [Pydantic documentation](https://pydantic-docs.helpmanual.io/usage/types/)
+
+Example:
+``` python
+from pydantic import BaseModel, HttpUrl
+
+class Image(BaseModel):
+    url: HttpUrl
+    name: str
+```
+
+
 # Miscellaneous
+## Typehint
+Python improve their typehinting mechanism. Hence, different Python versions have different typehinting mechanism.
+
+Example of defining optional list with string elements:
+- For Python 3.6 and above:
+`q: Union[List[str], None]`
+
+- For Python 3.9 and above:
+`q: Union[list[str], None]`
+
+- For Python 3.10 and above:
+`q: list[str] | None`
+
+
 ## Python Tricks
 ### Order Function Parameters as you Need
 ``` python
