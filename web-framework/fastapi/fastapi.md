@@ -24,9 +24,20 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [Multiple Request Body Parameters](#multiple-request-body-parameters)
     - [Pydantic Model Customization](#pydantic-model-customization)
     - [Nested Pydantic Models](#nested-pydantic-models)
-    - [Pydantic Model as List](#pydantic-model-as-list)
-    - [Pydantic Model Without Fixed Schema](#pydantic-model-without-fixed-schema)
-    - [Advanced Datatype from Pydantic](#advanced-datatype-from-pydantic)
+    - [Other Pydantic Model](#other-pydantic-model)
+      - [Pydantic Model as List](#pydantic-model-as-list)
+      - [Pydantic Model as Arbitrary Dictionary](#pydantic-model-as-arbitrary-dictionary)
+    - [Extra Data Types from Pydantic](#extra-data-types-from-pydantic)
+    - [Declare Request Example](#declare-request-example)
+      - [Pydantic Extra Schema](#pydantic-extra-schema)
+      - [Field Additional Argument](#field-additional-argument)
+      - [`example` and `examples` in OpenAPI](#example-and-examples-in-openapi)
+  - [Extra Data Types](#extra-data-types)
+  - [Cookie](#cookie)
+  - [Header](#header)
+    - [Duplicate Headers](#duplicate-headers)
+- [API Output - Response](#api-output---response)
+  - [Response Body](#response-body)
 - [Miscellaneous](#miscellaneous)
   - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
@@ -263,9 +274,7 @@ async def read_items(
 ```
 
 ### Make Query Parameters Required
-To make query parameters required, modify the typehint to not accept `None`, and do one of the following:
-- Set `default=None`
-- Don't set `default`
+To make query parameters required, modify the typehint to not accept `None`, and don't set `default` in `Query` object.
 
 Else, if the query parameters can accept `None`, do one of the following: 
 - Set `default=...` (so called Ellipsis in Python)
@@ -356,7 +365,7 @@ When there are multiple body parameters,FastAPI will use the parameter names as 
 ```
 
 ### Pydantic Model Customization
-We can set the default value of the function parameters as a `Field` object. It works the same as `Query`, `Path` and `Body`. (note that `Field` is imported from `Pydantic` instead of `fastapi`.)
+We can set the default value of the function parameters as a `Field` object. It provides the same customizations and validations as `Query`, `Path` and `Body`. (note that `Field` is imported from `Pydantic` instead of `fastapi`.)
 ``` python
 from pydantic import BaseModel, Field
 
@@ -389,7 +398,8 @@ An example of FastAPI expected input:
 }
 ```
 
-### Pydantic Model as List
+### Other Pydantic Model
+#### Pydantic Model as List
 Typehint the parameter using `List`.
 ``` python
 class Image(BaseModel):
@@ -401,7 +411,7 @@ async def create_multiple_images(images: List[Image]):
     return images
 ```
 
-### Pydantic Model Without Fixed Schema
+#### Pydantic Model as Arbitrary Dictionary
 Typehint the parameter using `Dict`. Example: `Dict[str, float]` will accept str key and float value.
 ``` python
 @app.post("/index-weights/")
@@ -409,7 +419,7 @@ async def create_index_weights(weights: Dict[str, float]):
     return weights
 ```
 
-### Advanced Datatype from Pydantic
+### Extra Data Types from Pydantic
 Refer to [Pydantic documentation](https://pydantic-docs.helpmanual.io/usage/types/)
 
 Example:
@@ -420,11 +430,188 @@ class Image(BaseModel):
     url: HttpUrl
     name: str
 ```
+### Declare Request Example
+There are 3 ways to add example for request body.
+#### Pydantic Extra Schema
+``` python
+class Item(BaseModel):
+    name: str
+    price: float
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "FastAPI",
+                "price": 26.8
+            }
+        }
+
+```
+Check out [Pydantic schema customization](https://pydantic-docs.helpmanual.io/usage/schema/#schema-customization) for more information.
+
+#### Field Additional Argument
+``` python
+class Item(BaseModel):
+    name: str = Field(example="FastAPI")
+    price: float = Field(example=26.8)
+```
+
+#### `example` and `examples` in OpenAPI
+``` python
+@app.post("/items")
+async def update_item(item: Union[Item, None] = Body(
+    example={
+        "name": "FastAPI",
+        "price": 26.8
+    }
+)):
+    return item
+```
+
+``` python
+@app.post("/items")
+async def update_item(item: Union[Item, None] = Body(
+    examples={
+        "first": {
+            "summary": "first example",
+            "description": "first description",
+            "value": {
+                "name": "FastAPI",
+                "price": 26.8
+            }
+        },
+        "invalid": {
+            "summary": "example with invalid data",
+            "value": {
+                "name": "FastAPI",
+                "price": "twenty six point eight"
+        }
+        }
+    }
+)):
+    return item
+```
+![](https://i.imgur.com/ij9NPwx.png)
+
+## Extra Data Types
+Refer to [link](https://fastapi.tiangolo.com/tutorial/extra-data-types/).
+Example:
+- `UUID`
+- `datetime.datetime`
+- `datetime.timedelta`
+
+## Cookie
+`Cookie` provides the same customizations and validations as `Query` and `Path`.
+``` python
+from fastapi import Cookie, FastAPI
+
+app = FastAPI()
+
+@app.get("/items/")
+async def read_items(ads_id: Union[str, None] = Cookie(default=None)):
+    return {"ads_id": ads_id}
+```
+
+## Header
+`Header` provides the same customizations and validations as `Query` and `Path`.
+``` python
+from fastapi import FastAPI, Header
+
+app = FastAPI()
+
+@app.get("/items/")
+async def read_items(user_agent: Union[str, None] = Header(default=None)):
+    return {"User-Agent": user_agent}
+```
+Characteristics of headers:
+- Usually standard headers are separated by a "hyphen" character (`-`).
+- Case-insensitive
+- Some HTTP proxies and server disallow the usage of headers with underscores
+
+By default, `Header` will convert parameter names characters from underscore (`_`) to hyphen(`-`). Add `convert_underscores=False` to disable the automatic conversion.
+``` python
+strange_header: Union[str, None] = Header(default=None, convert_underscores=False)
+```
+
+### Duplicate Headers
+Set the typehint as a List.
+``` python
+@app.get("/items/")
+async def read_items(x_token: Union[List[str], None] = Header(default=None)):
+    return {"X-Token values": x_token}
+```
+
+With that, the headers can be accepted with duplicates.
+``` python
+X-Token: foo
+X-Token: bar
+```
+
+# API Output - Response
+
+## Response Body
+We can declare `Pydantic` model for response, just like request body. The response model is declared as a **parameter of decorator method**, instead of path operation function (to provide additional functions). It can perform field limiting.
+``` python
+from fastapi import FastAPI
+from pydantic import BaseModel, EmailStr  # pip install email-validator or pip install pydantic[email]
+
+app = FastAPI()
+
+class UserIn(BaseModel):
+    username: str
+    password: str
+    email: EmailStr
+    full_name: Union[str, None] = None
+
+
+class UserOut(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: Union[str, None] = None
+
+
+@app.post("/user/", response_model=UserOut)
+async def create_user(user: UserIn):
+    return user  # field limiting in action
+```
+
+![](https://i.imgur.com/Ho6siFK.png)
+
+Notice that the response is filtered based on response model.
+
+`FastAPI` has a lot of field customizations which can be used in `decorator method` (from [Pydantic](https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict)):
+- `response_model_exclude_unset=True`
+- `response_model_exclude_defaults=True`
+- `response_model_exclude_none=True`
+
+One can also use the following parameters to include and exclude fields. However, it is recommended to defining multiple `Pydantic` models, instead of using these parameters.
+- `response_model_include={set of str}`
+- `response_model_include={set of str}`
+- `response_model_by_alias`
+
+Example of using `response_model_exclude_unset=True`
+``` python
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = "Default description"
+    price: float
+
+items = {
+    "foo": {"name": "Foo", "price": 26.8}
+}
+
+@app.get("/items/{item_id}", response_model=Item, response_model_exclude_unset=True)
+async def read_item(item_id: str):
+    return items[item_id]
+```
+In this case, `/items/foo` will not return the default value as there are unset.
+```
+{"name": "Foo", "price": 26.8}
+```
 
 # Miscellaneous
 ## Typehint
-Python improve their typehinting mechanism. Hence, different Python versions have different typehinting mechanism.
+Different Python versions have different typehinting mechanism, as Python improve their typehinting mechanism.
 
 Example of defining optional list with string elements:
 - For Python 3.6 and above:
@@ -441,5 +628,5 @@ Example of defining optional list with string elements:
 ### Order Function Parameters as you Need
 ``` python
 def print(*, fruit: str='apple', vege: str):
-  pass
+    pass
 ```
