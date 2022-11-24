@@ -15,7 +15,9 @@
 │    └── [glossary.md](data-engineer/glossary.md) (e)  
 ├── [data-science](data-science/)  
 │    ├── [README.md](data-science/README.md) (e)  
-│    └── [kaggle-connection.ipynb](data-science/kaggle-connection.ipynb) (e)  
+│    ├── [hyperopt.md](data-science/hyperopt.md) (e)  
+│    ├── [kaggle-connection.ipynb](data-science/kaggle-connection.ipynb) (e)  
+│    └── [mlflow.md](data-science/mlflow.md) (cur)  
 ├── [devops](devops/)  
 │    ├── [README.md](devops/README.md) (e)  
 │    └── [docker](devops/docker/)  
@@ -50,7 +52,7 @@
 └── [web-framework](web-framework/)  
        ├── [README.md](web-framework/README.md) (wip)  
        └── [fastapi](web-framework/fastapi/)  
-             └── [fastapi.md](web-framework/fastapi/fastapi.md) (cur)  
+             └── [fastapi.md](web-framework/fastapi/fastapi.md) (wip)  
 ### Status
 - e - empty
 - wip - work in progress
@@ -71,7 +73,9 @@
 │   └── glossary.md
 ├── data-science
 │   ├── README.md
-│   └── kaggle-connection.ipynb
+│   ├── hyperopt.md
+│   ├── kaggle-connection.ipynb
+│   └── mlflow.md
 ├── devops
 │   ├── README.md
 │   └── docker
@@ -99,7 +103,7 @@
 ├── programming-language
 │   ├── README.md
 │   └── python
-│       └── pipx.md
+│       ├── pipx.md
 │       └── poetry.md
 ├── programming-philosophy
 │   └── README.md
