@@ -6,7 +6,6 @@ Poetry is a tool for **dependency management** and **packaging** in Python. It a
 # Table of Contents
 - [Poetry](#poetry)
 - [Table of Contents](#table-of-contents)
-- [Objective](#objective)
 - [Poetry Generated File](#poetry-generated-file)
 - [Installation](#installation)
   - [Method 1: Using the official installer](#method-1-using-the-official-installer)
@@ -21,19 +20,20 @@ Poetry is a tool for **dependency management** and **packaging** in Python. It a
 - [Basic Usage](#basic-usage)
   - [Initialization](#initialization)
     - [Create a new Poetry project](#create-a-new-poetry-project)
-    - [Initializing a Pre-Existing Project without `requirements.txt](#initializing-a-pre-existing-project-without-requirementstxt)
-    - [Initializing a Pre-Existing Project with `requirements.txt](#initializing-a-pre-existing-project-with-requirementstxt)
+    - [Initializing a Pre-Existing Project](#initializing-a-pre-existing-project)
   - [Virtual Environment](#virtual-environment)
+    - [Virtual Environment that Poetry Uses](#virtual-environment-that-poetry-uses)
     - [Add dependency](#add-dependency)
       - [Method 1: Use command (recommended)](#method-1-use-command-recommended)
-      - [Method 2: Manually add the dependency in `pyproject.toml`](#method-2-manually-add-the-dependency-in-pyprojecttoml)
+      - [Method 2 (advanced): Manually add the dependency in `pyproject.toml`](#method-2-advanced-manually-add-the-dependency-in-pyprojecttoml)
       - [Method 3: If you cloning an existing project that use Poetry files](#method-3-if-you-cloning-an-existing-project-that-use-poetry-files)
-    - [Virtual Environment that Poetry Uses](#virtual-environment-that-poetry-uses)
     - [Run Python Script](#run-python-script)
     - [Activate the Virtual Environment](#activate-the-virtual-environment)
   - [Dependencies](#dependencies)
     - [List Dependencies](#list-dependencies)
+    - [Lock Dependencies](#lock-dependencies)
     - [Update Dependencies](#update-dependencies)
+    - [Remove Dependencies](#remove-dependencies)
     - [Export Dependencies from `poetry.lock` to `requirements.txt`](#export-dependencies-from-poetrylock-to-requirementstxt)
 - [Intermediate Usage](#intermediate-usage)
   - [Organize Dependencies by Groups](#organize-dependencies-by-groups)
@@ -43,30 +43,32 @@ Poetry is a tool for **dependency management** and **packaging** in Python. It a
       - [Install but exclude or include certain dependency groups (`--without` takes precedence over `--with`)](#install-but-exclude-or-include-certain-dependency-groups---without-takes-precedence-over---with)
       - [Install only certain dependency group](#install-only-certain-dependency-group)
       - [Remove dependency from dependency group](#remove-dependency-from-dependency-group)
-  - [Create Python Package](#create-python-package)
   - [Version Constraints](#version-constraints)
+  - [Create Python Package](#create-python-package)
+  - [Clear Cache](#clear-cache)
 - [Advanced Usage](#advanced-usage)
 - [Related PEP](#related-pep)
 
 
 **Requirements**: Python 3.7+
 
-# Objective
-- Install Poetry
-- Create new Poetry project / add Poetry to an existing project
-- Understand `pyproject.toml` and `poetry.lock`
-- Manage virtual environment
 # Poetry Generated File
-- pyproject.toml (can think of it as configuration file with a non-bloated `requirements.txt` in it)
-- poetry.lock (stores all the packages and their exact versions that it downloaded)
+- pyproject.toml (a python project configuration file with a session for top level dependencies)
+- poetry.lock (similar to `requirements.txt`, stores all the packages and their exact versions that it downloaded)
+
+<table><tr>
+<td> <img src="https://i.imgur.com/bEYrZ6V.png" alt="Drawing" style="width: 250px;"/> </td>
+<td> <img src="https://i.imgur.com/aP5g1SL.png" alt="Drawing" style="width: 250px;"/> </td>
+</tr></table>
 
 Both file should be commited to version control.
 
 # Installation 
-Refer to [link](https://python-poetry.org/docs/#installing-with-the-official-installer).
+Poetry isn't like `pip` which is installed in every virtual environment, the idea is to **install it globally**. Refer to [link](https://python-poetry.org/docs/#installing-with-the-official-installer).
 
 ## Method 1: Using the official installer
 Available at https://install.python-poetry.org/ and is developed in [its github repository](https://github.com/python-poetry/install.python-poetry.org).
+![](https://i.imgur.com/tfTW4K2.png)
 
 ### Linux/Mac/WSL
 ``` bash
@@ -164,13 +166,23 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 ```
 
-### Initializing a Pre-Existing Project without `requirements.txt
+To set the package name to be different with the project name, you can run
+``` bash
+poetry new rp-poetry --name playground
+```
+
+Or if you prefer to store the source code in a `/src` parent folder.
+``` bash
+poetry new --src poetry-playground
+```
+
+### Initializing a Pre-Existing Project
 Run
 ``` bash
 poetry init
 ```
 This will only create a `pyproject.toml` file based on your input. It will not generate the package and test folder.
-Therefore, you need to create the package folder and `REAME.md` file to run `poetry` command. Else, `poetry` will complain.
+Therefore, you need to create the **package folder** and **`REAME.md`** file to run `poetry` command. Else, `poetry` will complain.
 
 Example:
 ``` bash
@@ -180,13 +192,47 @@ poetry init
 ```
 ![](https://i.imgur.com/fybsUHc.png)
 
-### Initializing a Pre-Existing Project with `requirements.txt
+If the project has `requirements.txt`, one can `poetry add` them. This method should be avoid if the `requirements.txt` is generated by `pip freeze`.
 ``` bash
 poetry init
 poetry add $(cat requirements.txt)
 ```
 
 ## Virtual Environment
+
+### Virtual Environment that Poetry Uses
+Virtual environment that Poetry uses are decided by the following
+``` mermaid
+flowchart TB;
+
+    A("Activated Virtual Environment (auto-detected by Poetry)")
+    B("Virtual environment '{project-dir}/.venv'")
+    C("""Create new virtual environment when the user runs 
+    `poetry` commands such as
+    `poetry install` or `poetry run python file.py`
+    """)
+    D("""Default location: '{cache-dir}/virtualenvs'
+    {cache-dir} is configurable""")
+    E("Location: '{project-dir}/.venv'")
+
+    
+    A--"Yes"-->F("Use it")
+    A--"No"-->B;
+    B--"Yes"-->G("Use it")
+    B--"No"-->C;
+    C-->D;
+    C--"Set 'virtualenvs.in-project' as 'True'"-->E
+```
+
+1. Activated virtual environment (auto-detected by Poetry)
+2. The virtual environment `{project-dir}/.venv`
+3. Virtual environment created when the user runs `poetry` commands such as `poetry install` or `poetry run python file.py` 
+     - Default location: `{cache-dir}/virtualenvs` (in my case: `/home/weiti/.cache/pypoetry/virtualenvs`)
+     - Set `virtualenvs.in-project` as `True` to create within the root directory as `.venv`
+
+Change the virtual environment configuration.
+`poetry config cache-dir {another directory}`
+`poetry config virtualenvs.in-project true`
 
 ### Add dependency
 #### Method 1: Use command (recommended)
@@ -195,7 +241,9 @@ poetry add pandas
 ```
 Poetry will add a file `poetry.lock` if it doesn't exist and also update `pyproject.toml`.
 
-#### Method 2: Manually add the dependency in `pyproject.toml`
+![](https://i.imgur.com/xSu8dBM.png)
+
+#### Method 2 (advanced): Manually add the dependency in `pyproject.toml`
 ```
 [tool.poetry.dependencies]
 pandas = "^1.5.1"
@@ -206,16 +254,16 @@ poetry install
 ```
 This will generate a `poetry.lock` file.
 
-**If `poetry.lock` file exists**, running `poetry install` will return warning and fail to update the dependency.
+**If `poetry.lock` file exists**, update the `poetry.lock` file before running `poetry install`. Else, it will return warning and fail to update the dependency.
 ```bash
 Warning: poetry.lock is not consistent with pyproject.toml. You may be getting improper dependencies. Run `poetry lock [--no-update]` to fix it.
 ```
-Therefore, you should run
+Run
 ``` bash
 poetry lock --no-update
 poetry install
 ```
-`poetry lock` will add the new dependencies into the `poetry.lock` based on the `pyproject.toml` file. `--no-update` will keep the existing dependencies version constant.
+`poetry lock` adds the new dependencies into the `poetry.lock` based on the `pyproject.toml` file. `--no-update` will keep the existing dependencies version constant.
 
 #### Method 3: If you cloning an existing project that use Poetry files
 Run
@@ -226,36 +274,6 @@ Do note that your current project is a package too and will be install in [edita
 ``` bash
 poetry install --no-root
 ```
-
-### Virtual Environment that Poetry Uses
-Virtual environment that Poetry uses are decided by the following
-``` mermaid
-flowchart TB;
-
-    Z(Which Virtual Environment will Poetry Use?)
-    A("Activated Virtual Environment (auto-detected by Poetry)")
-    B("Virtual environment '{project-dir}/.venv'")
-    C("""Create new virtual environment when the user runs 
-    `poetry` commands such as
-    `poetry install` or `poetry run python file.py`
-    """)
-    D("""Default location: '{cache-dir}/virtualenvs'
-    {cache-dir} is configurable""")
-    E("Location: '{project-dir}/.venv'")
-    
-    Z-->A;
-    A--"don't have"-->B;
-    B--"don't have"-->C;
-    C-->D;
-    C--"Set 'virtualenvs.in-project' as 'True'"-->E
-```
-
-- Activated virtual environment (auto-detected by Poetry)
-- The virtual environment `{project-dir}/.venv`
-- Virtual environment created when the user runs `poetry` commands such as `poetry install` or `poetry run python file.py` 
-  - Default location: `{cache-dir}/virtualenvs` (in my case: `/home/weiti/.cache/pypoetry/virtualenvs`)
-  - Set `virtualenvs.in-project` as `True` to create within the root directory as `.venv`
-
 
 ### Run Python Script
 It is not necessary to activate the virtual environment to use Poetry. Running `poetry run` will use the virtual environment created.
@@ -324,11 +342,21 @@ pytest 6.2.5 pytest: simple powerful testing with Python
 ...
 ```
 
+### Lock Dependencies
+Locks (without installing) the dependencies specified in `pyproject.toml`
+
 ### Update Dependencies
-Update the dependencies based on `pyproject.toml`
+Update the dependencies to the latest version and update `poetry.lock` file based on `pyproject.toml`
 ``` bash
 poetry update
 ```
+
+### Remove Dependencies
+Remove the dependencies
+``` bash
+poetry remove pendulum
+```
+![](https://i.imgur.com/xJO3l4Q.png)
 
 ### Export Dependencies from `poetry.lock` to `requirements.txt`
 Some situations requires `requirements.txt` file. 
@@ -336,6 +364,7 @@ Example: heroku deployment.
 ``` bash
 poetry export --output requirements.txt
 ```
+![](https://i.imgur.com/gXKYIW0.png)
 
 # Intermediate Usage
 
@@ -392,16 +421,6 @@ poetry install --only main
 poetry remove pytest --group test
 ```
 
-## Create Python Package 
-Steps:
-1. Versioning - Follow [semantic versioning](https://semver.org/)
-2. Packaging - Run `poetry build`
-Package library in two formats, `sdist` which is a source format, and `wheel` which is a `compiled` package
-3. Publishing - Run `poetry publish`
-By default, Poetry will publish to [PyPI](https://pypi.org/) if you have configured your crendetial properly. To publish in a private repository, run `poetry publish -r my-repository` instead.
-
-One can combine step 2 and 3 as `poetry publish --build`
-
 ## Version Constraints
 For more info, refer to [documentation](https://python-poetry.org/docs/dependency-specification/).
 
@@ -435,12 +454,31 @@ poetry add django[bcrypt]@^4.0.0
 | Multiple requirements |  | >= 1.2, < 1.5 | >= 1.2, < 1.5 |
 | Exact requirements |  | ==1.2.3 | ==1.2.3 |
 
+## Create Python Package 
+Steps:
+1. **Versioning - Follow [semantic versioning](https://semver.org/)**
+2. **Set up credential for pypi (or other repo) **
+Example: `poetry config pypi-token.pypi {token}`
+3. **Packaging - Run `poetry build`**
+Package library in two formats, `sdist` which is a source format, and `wheel` which is a `compiled` package
+4. **Publishing - Run `poetry publish`**
+By default, Poetry will publish to [PyPI](https://pypi.org/) if you have configured your credential properly. To publish in a private repository, run `poetry publish -r my-repository` instead.
+
+One can combine step 3 and 4 as `poetry publish --build`
+
+![](https://i.imgur.com/jAwCFnv.png)
+![](https://i.imgur.com/o10Ahi2.png)
+
+## Clear Cache
+`poetry cache list`
+`poetry cache clear`
+
 # Advanced Usage
-[pyproject.toml](https://python-poetry.org/docs/pyproject/)
-[Commands](https://python-poetry.org/docs/cli/)
-[Configuration](https://python-poetry.org/docs/configuration/) (Run `poetry config --list` to see existing configuration) 
-[Repositories](https://python-poetry.org/docs/repositories/) (to host the package)
-[Plugins](https://python-poetry.org/docs/plugins/)
+[pyproject.toml](https://python-poetry.org/docs/pyproject/)  
+[Commands](https://python-poetry.org/docs/cli/)  
+[Configuration](https://python-poetry.org/docs/configuration/) (Run `poetry config --list` to see existing configuration)   
+[Repositories](https://python-poetry.org/docs/repositories/) (to host the package)  
+[Plugins](https://python-poetry.org/docs/plugins/)  
 
 # Related PEP
 - [PEP 440](https://peps.python.org/pep-0440)

@@ -9,7 +9,7 @@ MLflow is an open source platform for managing the end-to-end machine learning l
 | **MLFlow Tracking** | Tracking experiments parameters, code versions, metrics and artifacts |
 | **MLFlow Project** | Packaging ML code in a reusable, reproducible form |
 | **MLFlow Models** | Managing and deploying models |
-| **MLFlow Model Registry** | Providing a central model store to collaboratively manage the full lifecycl of an MLFlow model |
+| **MLFlow Model Registry** | Providing a central model store to collaboratively manage the full lifecycle of an MLFlow model |
 
 ![](https://i.imgur.com/T2dw9Cr.png)
 
@@ -26,9 +26,10 @@ Core philosophy:
 - [Installation](#installation)
 - [MLFlow Tracking](#mlflow-tracking)
   - [Concepts](#concepts)
-    - [Commands](#commands)
-      - [Setting Up](#setting-up)
-      - [Logging](#logging)
+  - [Commands](#commands)
+    - [Setting Up](#setting-up)
+    - [Logging](#logging)
+    - [Tracking Service API](#tracking-service-api)
 - [MLFlow Projects](#mlflow-projects)
 - [MLFlow Models](#mlflow-models)
 - [MLFlow Registry](#mlflow-registry)
@@ -60,52 +61,64 @@ The MLflow Tracking component is an API and UI for logging parameters, code vers
 - `tracking server`
   - Default location: `mlruns` directory
   - Type of remote tracking URIs
-    - Local file path (eg: file:/my/local/dir)
+    - Local file path (eg: `file:/my/local/dir`)
     - Database *(support mysql, mssql, sqlite, postgresql)* (eg: `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`)
     - HTTP Server (eg: `https://my-server:5000`)
     - Databricks (eg: `databricks://<profileName>`)
 - Store
   - `backend store` - store MLflow entities (runs, parameters, metrics, tags, notes, metadata, etc)
-    - `RestStore`
     - `Filestore`
     - `SQLAlchemyStore`
+    - `RestStore`
   - `artifact store` - persists artifacts (files, models, images, in-memory objects, or model summary, etc)
     - `LocalArtifactRepository`
     - `S3ArtifactRepository`
     - `HttpArtifactRepository`
-### Commands
-#### Setting Up
-`mlflow.set_tracking_uri()` or set environment variable `MLFLOW_TRACKING_URI `
-`mlflow.get_tracking_uri()`
-`mlflow.create_experiment()` - create a new experiment and returns its ID.
-`mlflow.set_experiment()` - set an experiment as active
-`mlflow.start_run(run_id=...)`
-`mlflow.end_run()`
-`mlflow ui`
-`mlflow.active_run()`
-`mlflow.last_active_run()`
+- `flavors`
+- `tag`
+## Commands
+### Setting Up
+- `mlflow.set_tracking_uri()` or set environment variable `MLFLOW_TRACKING_URI `  
+- `mlflow.get_tracking_uri()`  
+- `mlflow.create_experiment()` - create a new experiment and returns its ID  
+- `mlflow.set_experiment()` - set an experiment as active  
+- `mlflow.start_run(run_id=...)`  
+- `mlflow.end_run()`  
+- `mlflow ui`  
+- `mlflow.active_run()`  
+- `mlflow.last_active_run()`  
 
-#### Logging
-`mlflow.log_param()`
-`mlflow.log_params()`
-`mlflow.log_metric()`
-`mlflow.log_metrics()`
-`mlflow.set_tag()`
-`mlflow.set_tags()`
-`mlflow.log_artifact()`
-`mlflow.log_artifacts()`
-`mlflow.get_artifact_uri()`
-`mlflow.autolog() `
-- Scikit-learn - `mlflow.sklearn.autolog()`
-- Keras - `mlflow.tensorflow.autolog() `
-- Gluon - `mlflow.gluon.autolog()`
-- XGBoost - `mlflow.xgboost.autolog()`
-- LightGBM - `mlflow.lightgbm.autolog()`
-- Statsmodels - `mlflow.statsmodels.autolog()`
-- Spark - `mlflow.spark.autolog()`
-- Fastai - ` mlflow.fastai.autolog()`
-- Pytorch - `mlflow.pytorch.autolog()`
+### Logging
+- `mlflow.log_param()`  
+- `mlflow.log_params()`  
+- `mlflow.log_metric()`  
+``` python
+with mlflow.start_run():
+    for epoch in range(0, 3):
+        mlflow.log_metric(key="quality", value=2*epoch, step=epoch)
+```
+- `mlflow.log_metrics()`  
+- `mlflow.set_tag()`  
+- `mlflow.set_tags()`  
+- `mlflow.log_artifact()`  
+- `mlflow.log_artifacts()`  
+- `mlflow.get_artifact_uri()`  
+- `mlflow.autolog() `  
+  - Scikit-learn - `mlflow.sklearn.autolog()`
+  - Keras - `mlflow.tensorflow.autolog() `
+  - Gluon - `mlflow.gluon.autolog()`
+  - XGBoost - `mlflow.xgboost.autolog()`
+  - LightGBM - `mlflow.lightgbm.autolog()`
+  - Statsmodels - `mlflow.statsmodels.autolog()`
+  - Spark - `mlflow.spark.autolog()`
+  - Fastai - ` mlflow.fastai.autolog()`
+  - Pytorch - `mlflow.pytorch.autolog()`
 
+### Tracking Service API
+``` python
+from  mlflow.tracking import MlflowClient
+client = MlflowClient()
+```
 
 # MLFlow Projects
 
