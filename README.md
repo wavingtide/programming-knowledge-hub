@@ -14,7 +14,7 @@
 │    │    └── [README.md](data-engineer/database/README.md) (e)  
 │    └── [glossary.md](data-engineer/glossary.md) (e)  
 ├── [data-science](data-science/)  
-│    ├── [README.md](data-science/README.md) (e)  
+│    ├── [README.md](data-science/README.md) (wip)  
 │    ├── [hyperopt.md](data-science/hyperopt.md) (e)  
 │    ├── [kaggle-connection.ipynb](data-science/kaggle-connection.ipynb) (e)  
 │    └── [mlflow.md](data-science/mlflow.md) (cur)  

@@ -36,12 +36,17 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
   - [Cookie](#cookie)
   - [Header](#header)
     - [Duplicate Headers](#duplicate-headers)
+  - [Form Data and Request Files](#form-data-and-request-files)
+    - [Form Data](#form-data)
+    - [File](#file)
+      - [`UploadFile`](#uploadfile)
 - [API Output - Response](#api-output---response)
   - [Response Body](#response-body)
+  - [Response Status Code](#response-status-code)
 - [Miscellaneous](#miscellaneous)
   - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
-    - [Order Function Parameters as you Need](#order-function-parameters-as-you-need)
+    - [Order Function Parameters as We Need](#order-function-parameters-as-we-need)
 
 # API Concepts
 - HTTP Methods/Operations
@@ -75,7 +80,7 @@ Create a virtual environment and run
 pip install fastapi
 pip install "uvicorn[standard]"
 ```
-If you want to install all dependencies
+If we want to install all dependencies
 ``` bash
 pip install "fastapi[all]"
 ```
@@ -310,7 +315,7 @@ Reponse
 
 ## Intermediate: Request Body
 ### Singular Type Body Parameter
-If you want to make a singular type parameter (`int`, `str`, etcs) a body parameter instead of a query parameter, you can use `Body`. It provides the same customizations and validations as `Query` and `Path`.
+If we want to make a singular type parameter (`int`, `str`, etcs) a body parameter instead of a query parameter, we can use `Body`. It provides the same customizations and validations as `Query` and `Path`.
 ``` python
 @app.post("/items")
 async def update_item(price: int = Body()):
@@ -333,7 +338,7 @@ The expected FastAPI input will be like
 ```
 
 ### Multiple Request Body Parameters
-You can declare multiple body parameter.
+We can declare multiple body parameter.
 
 ``` python
 class Item(BaseModel):
@@ -375,7 +380,7 @@ class Item(BaseModel):
 ```
 
 ### Nested Pydantic Models
-You can typehint the attribute of `Pydantic` model with another `Pydantic` model object.
+We can typehint the attribute of `Pydantic` model with another `Pydantic` model object.
 
 ``` python
 class Image(BaseModel):
@@ -547,6 +552,78 @@ X-Token: foo
 X-Token: bar
 ```
 
+## Form Data and Request Files
+*Requirements: `pip install python-multipart`*  
+
+Data from forms is normally encoded using media type `application/x-www-form-urlencoded` when it doesn't include file, and encoded as `multipart/form-data` when the form include file.  
+
+We cannot declare both form data and request body in the same path operation.
+
+Both `Form` and `UploadFile` provides similar customizations and validations as `Query`, `Path` and `Body`.
+
+### Form Data  
+`Form` class inherits directly from `Body`
+
+``` python
+from fastapi import FastAPI, Form
+
+app = FastAPI()
+
+@app.post("/login/")
+async def login(username: str = Form(), password: str = Form()):
+    return {"username": username}
+```
+
+### File
+`File` class inherits directly from `Form`. The file will be uploaded as 'form data'. The parameter type can be `bytes` or `UploadFile`. `UploadFile` class inherits directly from **Starlette**'s `UploadFile`.
+
+With type `bytes`, **FastAPI** will read the file as bytes and store it in memory. (work well for small files)
+
+With type `UploadFile`, **FastAPI** will read the file as a "spooled" file (stored in memory up to a maximum size limit, and after passing this limit it will be stored in disk). (works well for large file)
+
+``` python
+from fastapi import FastAPI, File, UploadFile
+
+app = FastAPI()
+
+@app.post("/files/")
+async def create_file(file: Union[bytes, None] = File(default = None, description="A file read as bytes")):
+    return {"file_size": len(file)}
+
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):  # don't need default value File() if specify type as UploadFile
+    return {"filename": file.filename}
+```
+
+To upload multiple files
+``` python
+async def create_files(files: List[bytes] = File(description="Multiple files as bytes")):
+    return {"file_sizes": [len(file) for file in files]}
+```
+
+#### `UploadFile`
+Attributes of `UploadFile`:
+- filename: str
+- content_type: str (eg: image/jpeg)
+- file: [SpooledTemporaryFile](https://docs.python.org/3/library/tempfile.html#tempfile.SpooledTemporaryFile)
+
+Async methods of `UploadFile`:
+- `write(data)`
+- `read(size)`
+- `seek(offset)`
+- `close()`
+
+In `async` path operation 
+``` python
+contents = await myfile.read()
+```
+
+In normal path operation, we can access the `UploadFile.file` directly
+``` python
+contents = myfile.file.read()
+```
+
 # API Output - Response
 
 ## Response Body
@@ -577,7 +654,7 @@ async def create_user(user: UserIn):
 
 ![](https://i.imgur.com/Ho6siFK.png)
 
-Notice that the response is filtered based on response model.
+Notice that the response body is filtered based on response model.
 
 `FastAPI` has a lot of field customizations which can be used in `decorator method` (from [Pydantic](https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict)):
 - `response_model_exclude_unset=True`
@@ -609,6 +686,15 @@ In this case, `/items/foo` will not return the default value as there are unset.
 {"name": "Foo", "price": 26.8}
 ```
 
+## Response Status Code
+We can specify the HTTP status code used for the response with the parameter `status_code ` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (eg: `fastapi.status.HTTP_201_CREATED`)
+``` python
+@app.post("/items/", status_code=201)
+async def create_item(name: str):
+    return {"name": name}
+```
+![](https://i.imgur.com/2APnOiP.png)
+
 # Miscellaneous
 ## Typehint
 Different Python versions have different typehinting mechanism, as Python improve their typehinting mechanism.
@@ -625,7 +711,7 @@ Example of defining optional list with string elements:
 
 
 ## Python Tricks
-### Order Function Parameters as you Need
+### Order Function Parameters as We Need
 ``` python
 def print(*, fruit: str='apple', vege: str):
     pass
