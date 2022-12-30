@@ -1,16 +1,17 @@
 # MLflow
 Refer to [documentation](https://mlflow.org/docs/latest/index.html).
 
-*This guide only focus on MLFlow Python APIs and CLI.*
+*This guide focus mainly on MLflow Python, REST APIs and CLI. For R and Java APIs, please refer to the documentation.*
 
 MLflow is an open source platform for managing the end-to-end machine learning lifecycle. It tackles four **primary functions**.
 | Function  | Description  |
 |---|---|
-| **MLFlow Tracking** | Tracking experiments parameters, code versions, metrics and artifacts |
-| **MLFlow Project** | Packaging ML code in a reusable, reproducible form |
-| **MLFlow Models** | Managing and deploying models |
-| **MLFlow Model Registry** | Providing a central model store to collaboratively manage the full lifecycle of an MLFlow model |
+| **MLflow Tracking** | Tracking experiments parameters, code versions, metrics and artifacts |
+| **MLflow Project** | Packaging ML code in a reusable, reproducible form |
+| **MLflow Models** | Managing and deploying models |
+| **MLflow Model Registry** | Providing a central model store to collaboratively manage the full lifecycle of an MLflow model |
 
+MLflow provides a tracking UI.
 ![](https://i.imgur.com/T2dw9Cr.png)
 
 Core philosophy:
@@ -24,20 +25,28 @@ Core philosophy:
 - [MLflow](#mlflow)
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-- [MLFlow Tracking](#mlflow-tracking)
+- [MLflow Tracking](#mlflow-tracking)
   - [Concepts](#concepts)
+  - [Logging](#logging)
+    - [Getting Started with Logging](#getting-started-with-logging)
+    - [Runs](#runs)
+    - [Experiments](#experiments)
+    - [Automatic Logging](#automatic-logging)
+    - [Search](#search)
+  - [Storage and Tracking Server](#storage-and-tracking-server)
+  - [Tracking UI](#tracking-ui)
   - [Commands](#commands)
     - [Setting Up](#setting-up)
-    - [Logging](#logging)
+    - [Logging](#logging-1)
     - [Miscellaneous](#miscellaneous)
   - [Environment Variables](#environment-variables)
   - [Tracking Server](#tracking-server)
     - [Storage](#storage)
       - [Backend Stores](#backend-stores)
       - [Artifact Stores](#artifact-stores)
-- [MLFlow Projects](#mlflow-projects)
-- [MLFlow Models](#mlflow-models)
-- [MLFlow Registry](#mlflow-registry)
+- [MLflow Projects](#mlflow-projects)
+- [MLflow Models](#mlflow-models)
+- [MLflow Registry](#mlflow-registry)
   - [Concepts](#concepts-1)
   - [Miscellaneous](#miscellaneous-1)
 
@@ -53,79 +62,176 @@ pip install mlflow[extras]
 pip install mlflow-skinny
 ```
 
-# MLFlow Tracking
+# MLflow Tracking
 The MLflow Tracking component is an API and UI for logging parameters, code versions, metrics, and output files when running your machine learning code and for later visualizing the results.
 
 ## Concepts
-- `run` - Executions of data science code
-  Contains of 
-  - `code version` - git commit hash for the run
-  - `start & end date`
-  - `source` - Name of the run file, or the project name and entry point
-  - `parameters` - key-value pair
-  - `metrics` - key-value pair
-  - `artifacts` - output files in any format (eg: image, models, data)
-- `experiment` - A group of `runs` for a specific tasks
-  - When an experiment is created, the artifact storage location from the configuration of the tracking server is logged in the experiment’s metadata.
-- `project`
-  Contains of
-  - project URI
-  - source version
-- `local files`, `SQLAlchemy compatible database`, `tracking server` - location where runs are recorded
-- `local files`, `remote file storage solutions` - location where MLFlow artifacts are persisted
-- `storage`
+- `run` - Execution of code 
+- `experiment` - A group of runs for a specific tasks
+- `storage` 
   - `backend store` - persists MLflow entities (runs, parameters, metrics, tags, notes, metadata, etc)
-    - Implementation of abstract class `AbstractStore`
-    - `FileStore`
-    - `SQLAlchemyStore`
-    - `RestStore` - communicate with `Tracking Server` by sending REST API requests
   - `artifact store` - persists artifacts (files, models, images, in-memory objects, or model summary, etc)
-    - Implementation of abstract class `ArtifactRepository`
-    - `LocalArtifactRepository`
-    - `S3ArtifactRepository`
-    - `HttpArtifactRepository`
-  - Example:
-    1. **Localhost** 
-      - `backend store`: `FileStore`
-      - `artifact store`: `LocalArtifactRepository`
-    2. **Localhost + SQLite** 
-      - `backend store`: `SQLAlchemyStore` (in database file: `mlruns.db`)
-      - `artifact store`: `LocalArtifactRepository` (in local `./mlruns` directory)
-    3. **Localhost + Tracking Server in Localhost**
-        ``` shell
-        mlflow server --backend-store-uri file:///path/to/mlruns --no-serve-artifacts
-        ```
-        The URI of `backend store` and `artifact store` are configured in `Tracking Server`.
-        - `backend store`: `RestStore` &rarr; `FileStore` connected from `Tracking Server`
-        - `artifact store`: `RestStore` &rarr; (fetch `artifact store` URI from `Tracking Server`) &rarr; `LocalArtifactRepository` 
-    4. **Remote Tracking Server and Stores**
-        ``` shell
-        mlflow server --backend-store-uri postgresql://user:password@postgres:5432/mlflowdb --default-artifact-root s3://bucket_name --host remote_host --no-serve-artifacts
-        ```
-        The URI of `backend store` and `artifact store` are configured in `Tracking Server`.
-        - `backend store`: `RestStore` &rarr; remote `SQLAlchemyStore ` (PostgreSQL) connected from `Tracking Server`
-        - `artifact store`: `RestStore` &rarr; (fetch `artifact store` URI from `Tracking Server`) &rarr; `S3ArtifactRepository` (connected using boto3 client) 
-    5. **Remote Tracking Server with proxied artifact storage access**
-        ``` shell
-        mlflow server \
-        --backend-store-uri postgresql://user:password@postgres:5432/mlflowdb \
-        # Artifact access is enabled through the proxy URI 'mlflow-artifacts:/',
-        # giving users access to this location without having to manage credentials
-        # or permissions.
-        --artifact-destination-root s3://bucket_name \
-        --host remote_host
-        ```
-        Same object store configuration with `4.`. Tracking server acts as a proxy server for artifact related operations. (**eliminate needs for end user to have credential to object store**)
-        - `backend store`: `RestStore` &rarr; remote `SQLAlchemyStore ` (PostgreSQL) connected from `Tracking Server`
-        - `artifact store`: `HttpArtifactRepository` &rarr; `FileStore` (S3 Bucket) connected from `Tracking Server`
-    6. **Remote Tracking Server only for Artifact**
-        Possible scenario: Splitting `backend store` and `artifact store` to different Tracking Servers
-        ``` shell
-        mlflow server --artifact-destination-root s3://bucket_name --artifacts-only --host remote_host
-        ```
-- Tracking UI - Visualize, search and compare runs, as well as download run artifacts or metadata for analysis in other tools.
-- `flavors`
-- `tag`
+- `tracking UI` - Visualize, search and compare runs, as well as download run artifacts or metadata for analysis in other tools
+
+## Logging
+### Getting Started with Logging
+You can use `log_param`, `log_metric`, `log_artifact` to log the run info.
+
+Add the following code to `main.py` file and run.
+``` python
+import os
+from mlflow import log_metric, log_param, log_artifact
+
+# log a parameter (key-value pair)
+log_param("param1", 1)
+
+# log a metric
+log_metric('foo', 2)
+log_metric('foo', 4)  # only the latest will be logged
+
+# log an artifact
+if not os.path.exists('outputs'):
+    os.makedirs('outputs')
+with open('outputs/test.txt', 'w') as f:
+    f.write('hello world!')
+
+log_artifact('outputs')
+```
+
+By default, the info is stored in `./mlruns` directory in the project directory, under experiment id `0` with experiment name `Default`. MLflow will create a random run id and name.
+
+The `./mlruns` directory structure is as follows.
+``` shell
+mlruns/
+└── 0
+    ├── 73ed5776f5e04e23be739d46812cb6bd  # run id
+    │   ├── artifacts
+    │   │   └── outputs
+    │   │       └── test.txt
+    │   ├── meta.yaml  # metadata of the run 
+    │   ├── metrics
+    │   │   └── foo  # 1672364273330 2.0 0 1672364273332 4.0 0
+    │   ├── params
+    │   │   └── param1 # 1
+    │   └── tags
+    │       ├── mlflow.runName  # a random name
+    │       ├── mlflow.source.name  # file that was run
+    │       ├── mlflow.source.type  # LOCAL
+    │       └── mlflow.user  # wavet
+    └── meta.yaml  # metadata of the experiment
+```
+
+Most of the files are easy to understand. The `{experiment_id}/meta.yaml` file records metadata of the experiment (artifact, experiment, lifecycle, time).
+``` shell
+artifact_location: file:///home/wavet/Code/tutorial/playground-mlflow/mlruns/0
+creation_time: 1672364273202
+experiment_id: '0'
+last_update_time: 1672364273202
+lifecycle_stage: active
+name: Default
+```
+
+The `{experiment_id}/{run_id}/meta.yaml` file records metadata of the run (artifact, entry point, time, run, source, status).
+``` shell
+artifact_uri: file:///home/wavet/Code/tutorial/playground-mlflow/mlruns/0/73ed5776f5e04e23be739d46812cb6bd/artifacts
+end_time: 1672364273335
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 73ed5776f5e04e23be739d46812cb6bd
+run_name: beautiful-dog-902
+run_uuid: 73ed5776f5e04e23be739d46812cb6bd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1672364273319
+status: 3
+tags: []
+user_id: wavet
+```
+
+Run `mlflow ui` in command line and visit `http://127.0.0.1:5000` to view the tracking UI.
+
+![](https://i.imgur.com/j1vmMOh.png)  
+![](https://imgur.com/C5tYkEv.png)
+
+### Runs
+Calling one of the logging function with no active run automatically starts a new run. 
+
+To allow better control of the run, you can use `mlflow.start_run()` and `mlflow.end_run()` to indicate the start and end of a MLflow run.
+
+``` python
+import mlflow
+
+mlflow.start_run()
+
+# log a parameter (key-value pair)
+mlflow.log_param("param1", 1)
+
+mlflow.end_run()
+```
+`mlflow.start_run()` returns a `mlflow.ActiveRun` (`mlflow.tracking.fluent.ActiveRun`) object, which is a context manager and can be used with `with`.
+
+``` python
+import mlflow
+
+with mlflow.start_run():
+    mlflow.log_param("param1", 1)
+```
+
+With this, we can launch multiple runs in one program.
+
+We can also use `mlflow.active_run()` and `mlflow.last_active_run()` to get the active or last active run object.
+
+There are 2 types of run objects defined in MLflow
+- `mlflow.entities.Run` (`mlflow.entities.run.Run`)
+- `mlflow.ActiveRun` (`mlflow.tracking.fluent.ActiveRun`)
+
+`mlflow.ActiveRun` object that is returned by `mlflow.start_run()` or `mlflow.active_run()` does not store the run attributes (parameter, metrics) during the run. To access the run attributes, use `MlflowClient` as follows
+
+``` python
+client = mlflow.MlflowClient()
+data = client.get_run(mlflow.active_run().info.run_id).data
+```
+``` python
+data
+
+<RunData: metrics={'foo': 4.0}, params={'param1': '1'}, tags={'mlflow.runName': 'kindly-flea-597',
+ 'mlflow.source.name': '/home/wavet/Code/tutorial/playground-mlflow/src/main.py',
+ 'mlflow.source.type': 'LOCAL',
+ 'mlflow.user': 'wavet'}>
+```
+
+### Experiments
+`mlflow.create_experiment()`  
+`mlflow.set_experiment()`
+
+
+### Automatic Logging
+
+### Search 
+
+## Storage and Tracking Server
+Backend store and artifact store
+- `backend store` - persists MLflow entities (runs, parameters, metrics, tags, notes, metadata, etc)
+- `artifact store` - persists artifacts (files, models, images, in-memory objects, or model summary, etc)
+
+
+The tracking server URI can be
+- Local file path `file:/my/local/dir`
+- Database `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`
+  - Support SQLAlchemy compatible database `mysql`, `mssql`, `sqlite`, `postgresql`
+- HTTP server `https://my-server:5000`
+- Databricks workspace `databricks://<profileName>`
+
+`mlflow.set_tracking_uri()`
+`mlflow.get_tracking_uri()`
+
+Environment variable
+`MLFLOW_TRACKING_URI`
+
+
+## Tracking UI
 ## Commands
 ### Setting Up
 Things to set up:
@@ -249,13 +355,19 @@ Example:
 
 If the host or host:port declaration is absent in client artifact requests to the MLflow server, the client API will assume that the host is the same as the MLflow Tracking uri.
 
-# MLFlow Projects
+# MLflow Projects
+An MLflow project is a format for packaging data science code in a reusable and reproducible way, based primarily on convention. It includes an API and command-line tools for running projects.
+
+`MLproject` file
 
 
-# MLFlow Models
 
+# MLflow Models
+An MLflow model is a standard format/convention for **packaging machine learning models** that can be **used in a variety of downstream tools** (different "flavors" that can be understood by different downstream tools).
 
-# MLFlow Registry
+`MLmodel` file
+
+# MLflow Registry
 
 ## Concepts
 - Model Lineage

@@ -40,6 +40,7 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [Form Data](#form-data)
     - [File](#file)
       - [`UploadFile`](#uploadfile)
+    - [Using both Forms and Files](#using-both-forms-and-files)
 - [API Output - Response](#api-output---response)
   - [Response Body](#response-body)
   - [Response Status Code](#response-status-code)
@@ -624,6 +625,21 @@ In normal path operation, we can access the `UploadFile.file` directly
 contents = myfile.file.read()
 ```
 
+### Using both Forms and Files
+We can define files and form fields at the same time using `File` and `Form`.
+``` python
+@app.post("/files/")
+async def create_file(
+    file: bytes = File(), fileb: UploadFile = File(), token: str = Form()
+):
+    return {
+        "file_size": len(file),
+        "token": token,
+        "fileb_content_type": fileb.content_type,
+    }
+```
+
+
 # API Output - Response
 
 ## Response Body
@@ -687,7 +703,7 @@ In this case, `/items/foo` will not return the default value as there are unset.
 ```
 
 ## Response Status Code
-We can specify the HTTP status code used for the response with the parameter `status_code ` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (eg: `fastapi.status.HTTP_201_CREATED`)
+We can specify the HTTP status code used for the response with the parameter `status_code` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (eg: `fastapi.status.HTTP_201_CREATED`)
 ``` python
 @app.post("/items/", status_code=201)
 async def create_item(name: str):
