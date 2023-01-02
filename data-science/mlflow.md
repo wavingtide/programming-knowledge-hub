@@ -30,12 +30,14 @@ Core philosophy:
   - [Logging](#logging)
     - [Getting Started with Logging](#getting-started-with-logging)
     - [Logging Commands](#logging-commands)
-    - [Runs](#runs)
-    - [Experiments](#experiments)
-    - [Automatic Logging](#automatic-logging)
-    - [Search](#search)
-  - [Storage and Tracking Server](#storage-and-tracking-server)
+  - [Runs](#runs)
+  - [Experiments](#experiments)
+    - [Command line](#command-line)
+  - [Automatic Logging](#automatic-logging)
+  - [Tags](#tags)
   - [Tracking UI](#tracking-ui)
+  - [Search](#search)
+  - [Storage and Tracking Server](#storage-and-tracking-server)
   - [Commands](#commands)
     - [Setting Up](#setting-up)
     - [Logging](#logging-1)
@@ -159,37 +161,40 @@ Run `mlflow ui` in command line and visit `http://127.0.0.1:5000` to view the tr
 ### Logging Commands
 - `log_param`
   ``` python
-  log_param('learning_rate', 0.01)
+  mlflow.log_param('learning_rate', 0.01)
   ```
 - `log_params`
   ``` python
   params = {'learning_rate': 0.01, 'n_estimators': 10}
-  log_params(params)
+  mlflow.log_params(params)
   ```
 - `log_metric`
   ``` python
-  log_metric('mse', 2500.00)
+  mlflow.log_metric('mse', 2500.00)
   ```
-  `log_metric` can accept `step` (default to `0`)
+  `log_metric` can accept `step` (default to `0`). Step must be valid 64-bit integer value, can be negative, have gap and out of order in successive calls. For example, (10, -4, 23, 5).
   ``` python
   for step in range(0, 100):
-      log_metric('mse', 100*step, step)
+      mlflow.log_metric('mse', 100*step, step)
   ```
+  The visualization of the change of metrics is available in the tracking UI. The x-axis can be `step` or `timestamp`.
+  ![](https://i.imgur.com/UaeDILo.png)
+  ![](https://i.imgur.com/qI3SZpO.png)
 - `log_metrics` (can also accept single integer `step`)
   ``` python
   metrics = {'mse': 2500.00, 'rmse': 50.00}
-  log_metrics(metrics)
+  mlflow.log_metrics(metrics)
   ```
 - `log_artifact` - log one file or one directory
   ``` python
   with open("features.txt", 'w') as f:
       f.write('room, price, zipcode')
 
-  log_artifact('feature.txt')
+  mlflow.log_artifact('feature.txt')
   ```
   One can specify the `artifact_path`, which is the directory in `artifact_uri` to write to.
   ``` python
-  log_artifact('feature.txt', artifact_path='feat')
+  mlflow.log_artifact('feature.txt', artifact_path='feat')
   ```
 - `log_artifacts` - log all contents of a directory
   ``` python
@@ -202,7 +207,7 @@ Run `mlflow ui` in command line and visit `http://127.0.0.1:5000` to view the tr
   with open("data/features.txt", 'w') as f:
       f.write('room, price, zipcode')
 
-  log_artifacts('data')
+  mlflow.log_artifacts('data')
   ```
   One can also specify the `artifact_path`.
 
@@ -258,7 +263,7 @@ image = Image.new("RGB", (100, 100))
 mlflow.log_image(image, "image.png")
 ```
 
-### Runs
+## Runs
 Calling one of the logging function with no active run automatically starts a new run. 
 
 To allow better control of the run, use `mlflow.start_run()` and `mlflow.end_run()` to indicate the start and end of a MLflow run.
@@ -284,7 +289,7 @@ with mlflow.start_run():
 
 You can launch multiple runs in one program by calling `with mlflow.start_run()` multiple time.
 ``` python
-for lr in (0.01, 0.02, 0.03):
+for lr in (0.01, 0.1, 0.5):
     with mlflow.start_run():
         mlflow.log_param("learning_rate", lr)
 ```
@@ -342,8 +347,8 @@ data
  'mlflow.user': 'wavet'}>
 ```
 
-### Experiments
-You can organize runs into experiments for a specific task.
+## Experiments
+MLflow can organize runs into experiments, which can be useful for comparing runs intended to tackle a specific task.
 
 The experiment of a run is decided in the following order
 - `experiment_id` if it is specified in `mlflow.start_run()`
@@ -382,9 +387,123 @@ Use `mlflow.get_experiment()` to get the experiment object by experiment id.
 experiment = mlflow.get_experiment("0")
 ```
 
-### Automatic Logging
+### Command line
+Use MLflow CLI to create an experiment
+``` shell
+# setting environment variable
+export MLFLOW_EXPERIMENT_NAME=fraud-detection
 
-### Search 
+# creating the experiments
+mlflow experiments create --experiment-name fraud-detection
+```
+
+You can pass `--experiment-name [name]` or `--experiment-id [id]` to an individual run in CLI.
+``` python
+mlflow run ... --experiment-name [name]
+```
+
+## Automatic Logging
+MLflow provides automatic logging for many ML libraries. Automatic logging helps to log parameters, metrics and models based on convention, without the need for explicit log statements.
+
+One can use `mlflow.autolog()` which enable autologging for each supported library, or use library-specific autolog calls. 
+
+The supported libraries are
+- Scikit-learn - `mlflow.sklearn.autolog()`
+- Keras - `mlflow.tensorflow.autolog() `
+- Gluon - `mlflow.gluon.autolog()`
+- XGBoost - `mlflow.xgboost.autolog()`
+- LightGBM - `mlflow.lightgbm.autolog()`
+- Statsmodels - `mlflow.statsmodels.autolog()`
+- Spark - `mlflow.spark.autolog()`
+- Fastai - ` mlflow.fastai.autolog()`
+- Pytorch - `mlflow.pytorch.autolog()`
+
+Example of using scikit-learn `RandomForestRegressor`
+``` python
+import mlflow
+
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_diabetes
+from sklearn.ensemble import RandomForestRegressor
+
+mlflow.autolog()
+
+db = load_diabetes()
+X_train, X_test, y_train, y_test = train_test_split(db.data, db.target)
+
+# Create and train models.
+rf = RandomForestRegressor(n_estimators = 100, max_depth = 6, max_features = 3)
+rf.fit(X_train, y_train)
+
+# Use the model to make predictions on the test dataset.
+predictions = rf.predict(X_test)
+autolog_run = mlflow.last_active_run()
+```
+When running the code, the log will inform you the creation of autologging.
+``` shell
+2023/01/02 23:21:12 INFO mlflow.utils.autologging_utils: Created MLflow autologging run with ID '7892b9756a6546fca721f36f1f270d76', which will track hyperparameters, performance metrics, model artifacts, and lineage information for the current sklearn workflow
+```
+
+The `mlruns` will look as follows. For flavors that automatically save models as an artifact, [MLflow Models](#mlflow-models) logs additional files for dependency management. 
+``` shell
+mlruns
+├── 0
+│   └── meta.yaml
+├── 590323814279318902
+│   ├── 7892b9756a6546fca721f36f1f270d76
+│   │   ├── artifacts
+│   │   │   ├── estimator.html
+│   │   │   └── model
+│   │   │       ├── MLmodel
+│   │   │       ├── conda.yaml
+│   │   │       ├── model.pkl
+│   │   │       ├── python_env.yaml
+│   │   │       └── requirements.txt
+│   │   ├── meta.yaml
+│   │   ├── metrics
+│   │   │   ├── training_mean_absolute_error
+│   │   │   ├── training_mean_squared_error
+│   │   │   ├── training_r2_score
+│   │   │   ├── training_root_mean_squared_error
+│   │   │   └── training_score
+│   │   ├── params
+│   │   │   ├── bootstrap
+│   │   │   ├── ccp_alpha
+│   │   │   ├── criterion
+│   │   │   ├── max_depth
+│   │   │   ├── max_features
+│   │   │   ├── max_leaf_nodes
+│   │   │   ├── max_samples
+│   │   │   ├── min_impurity_decrease
+│   │   │   ├── min_samples_leaf
+│   │   │   ├── min_samples_split
+│   │   │   ├── min_weight_fraction_leaf
+│   │   │   ├── n_estimators
+│   │   │   ├── n_jobs
+│   │   │   ├── oob_score
+│   │   │   ├── random_state
+│   │   │   ├── verbose
+│   │   │   └── warm_start
+│   │   └── tags
+│   │       ├── estimator_class
+│   │       ├── estimator_name
+│   │       ├── mlflow.autologging
+│   │       ├── mlflow.log-model.history
+│   │       ├── mlflow.runName
+│   │       ├── mlflow.source.name
+│   │       ├── mlflow.source.type
+│   │       └── mlflow.user
+│   └── meta.yaml
+└── models
+```
+
+For more details about the autologging of each supported libraries, please refer to [mlflow documentation](https://mlflow.org/docs/latest/tracking.html#automatic-logging).
+
+## Tags
+
+## Tracking UI
+
+## Search 
 
 ## Storage and Tracking Server
 Backend store and artifact store
@@ -405,39 +524,18 @@ The tracking server URI can be
 Environment variable
 `MLFLOW_TRACKING_URI`
 
-
-## Tracking UI
 ## Commands
 ### Setting Up
 Things to set up:
 - Tracking URI
   - `mlflow.set_tracking_uri()` (or set environment variable `MLFLOW_TRACKING_URI `) - Connect to a tracking URI
   - `mlflow.get_tracking_uri()`  - Return current tracking URI
-- Experiment 
-  - Using command line 
-    ```python
-    mlflow experiments create --experiment-name fraud-detection
-    ```
-    ```python
-    mlflow experiments create --experiment-id 42
-    ```
 
 ### Logging
 x-axis can be `timestamp` or `step` (not much constraint on order and sign besides of it should be integer) 
 - `mlflow.set_tag()`  
 - `mlflow.set_tags()`  
 - `mlflow.get_artifact_uri()`  
-- `mlflow.autolog()` - Automatic log metrics, parameters and models without the need for explicit log statements. Can be use for supported libraries. Should be called before the training code.
-- Library-specific autolog
-  - Scikit-learn - `mlflow.sklearn.autolog()`
-  - Keras - `mlflow.tensorflow.autolog() `
-  - Gluon - `mlflow.gluon.autolog()`
-  - XGBoost - `mlflow.xgboost.autolog()`
-  - LightGBM - `mlflow.lightgbm.autolog()`
-  - Statsmodels - `mlflow.statsmodels.autolog()`
-  - Spark - `mlflow.spark.autolog()`
-  - Fastai - ` mlflow.fastai.autolog()`
-  - Pytorch - `mlflow.pytorch.autolog()`
 
 ### Miscellaneous
 - `MlflowClient` - tracking service API
