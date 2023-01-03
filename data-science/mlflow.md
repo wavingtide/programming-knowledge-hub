@@ -30,27 +30,24 @@ Core philosophy:
   - [Logging](#logging)
     - [Getting Started with Logging](#getting-started-with-logging)
     - [Logging Commands](#logging-commands)
+    - [Automatic Logging](#automatic-logging)
   - [Runs](#runs)
   - [Experiments](#experiments)
     - [Command line](#command-line)
-  - [Automatic Logging](#automatic-logging)
   - [Tags](#tags)
+  - [Storage and Tracking Server](#storage-and-tracking-server)
+    - [Storage](#storage)
+    - [Tracking Server](#tracking-server)
   - [Tracking UI](#tracking-ui)
   - [Search](#search)
-  - [Storage and Tracking Server](#storage-and-tracking-server)
-  - [Commands](#commands)
-    - [Setting Up](#setting-up)
-    - [Logging](#logging-1)
-    - [Miscellaneous](#miscellaneous)
-  - [Tracking Server](#tracking-server)
-    - [Storage](#storage)
-      - [Backend Stores](#backend-stores)
+  - [Delete](#delete)
+  - [MlflowClient](#mlflowclient)
       - [Artifact Stores](#artifact-stores)
 - [MLflow Projects](#mlflow-projects)
 - [MLflow Models](#mlflow-models)
 - [MLflow Registry](#mlflow-registry)
   - [Concepts](#concepts-1)
-  - [Miscellaneous](#miscellaneous-1)
+  - [Miscellaneous](#miscellaneous)
 
 # Installation
 ``` python
@@ -263,146 +260,7 @@ image = Image.new("RGB", (100, 100))
 mlflow.log_image(image, "image.png")
 ```
 
-## Runs
-Calling one of the logging function with no active run automatically starts a new run. 
-
-To allow better control of the run, use `mlflow.start_run()` and `mlflow.end_run()` to indicate the start and end of a MLflow run.
-
-``` python
-import mlflow
-
-mlflow.start_run()
-
-# log a parameter (key-value pair)
-mlflow.log_param("param1", 1)
-
-mlflow.end_run()
-```
-`mlflow.start_run()` returns a `mlflow.ActiveRun` (`mlflow.tracking.fluent.ActiveRun`) object, which is a context manager and can be used with `with`.
-
-``` python
-import mlflow
-
-with mlflow.start_run():
-    mlflow.log_param("param1", 1)
-```
-
-You can launch multiple runs in one program by calling `with mlflow.start_run()` multiple time.
-``` python
-for lr in (0.01, 0.1, 0.5):
-    with mlflow.start_run():
-        mlflow.log_param("learning_rate", lr)
-```
-
-To resume an existing run, you can pass a `run_id` to `mlflow.start_run()` or set an environment variable `MLFLOW_RUN_ID`. (`run_id` takes precedence over `MLFLOW_RUN_ID`)
-``` python
-# initial run
-with mlflow.start_run() as run:
-    mlflow.log_param("param1", 1)
-
-# resuming the initial run
-with mlflow.start_run(run_id=run.info.run_id):
-    mlflow.log_param("param2", 2)
-```
-
-If you are running a new run, you can set the `experiment_id` and `run_name` in `mlflow.start_run()`.
-``` python
-with mlflow.start_run(experiment_id=0,
-                      run_name="potatobanana"):
-    mlflow.log_param("param1", 1)
-```
-
-To provide more metadata for a run, you can state if the run is nested, and the tags and description.
-``` python
-with mlflow.start_run(nested=False, tags={"author": "wavet"}, description="An example start run"):
-    mlflow.log_param("param1", 1)
-```
-
-You can also use `mlflow.active_run()` and `mlflow.last_active_run()` to get the active or last active run object.
-
-``` python
-import mlflow
-
-with mlflow.start_run():
-    run = mlflow.active_run()
-    print("Active run_id: {}".format(run.info.run_id))
-```
-
-There are 2 types of run objects defined in MLflow
-- `mlflow.entities.Run` (`mlflow.entities.run.Run`)
-- `mlflow.ActiveRun` (`mlflow.tracking.fluent.ActiveRun`)
-
-`mlflow.ActiveRun` object returned by `mlflow.start_run()` or `mlflow.active_run()` does not store the currently-active run attributes (parameter, metrics). To access the run attributes during the run, use `MlflowClient` as follows
-
-``` python
-client = mlflow.MlflowClient()
-data = client.get_run(mlflow.active_run().info.run_id).data
-```
-``` python
-data
-
-<RunData: metrics={'foo': 4.0}, params={'param1': '1'}, tags={'mlflow.runName': 'kindly-flea-597',
- 'mlflow.source.name': '/home/wavet/Code/tutorial/playground-mlflow/src/main.py',
- 'mlflow.source.type': 'LOCAL',
- 'mlflow.user': 'wavet'}>
-```
-
-## Experiments
-MLflow can organize runs into experiments, which can be useful for comparing runs intended to tackle a specific task.
-
-The experiment of a run is decided in the following order
-- `experiment_id` if it is specified in `mlflow.start_run()`
-- Activated experiment using `mlflow.set_experiment()`
-- Environment variable `MLFLOW_EXPERIMENT_NAME`
-- Environment variable `MLFLOW_EXPERIMENT_ID`
-- Default experiment defined by the tracking server
-
-You can activate an experiment using `mlflow.set_experiment()`, it accepts exactly one of (`experiment_name`, `experiment_id`)
-``` python
-mlflow.set_experiment("new_experiment")
-
-with mlflow.start_run():
-    mlflow.log_param("params1", 1)
-```
-``` python
-mlflow.set_experiment(experiment_id='0')
-
-with mlflow.start_run():
-    mlflow.log_param("params1", 1)
-```
-
-To allow more configurations on the experiment, you can use `mlflow.create_experiment()`. Besides of experiment name, you can specify the `artifact_location` and experiment `tags`.
-``` python
-experiment_id = mlflow.create_experiment(
-    "Social NLP Experiments",
-    artifact_location=Path.cwd().joinpath("mlruns").as_uri(),
-    tags={"version": "v1", "priority": "P1"},
-)
-
-mlflow.set_experiment(experiment_id=experiment_id)
-```
-
-Use `mlflow.get_experiment()` to get the experiment object by experiment id.
-``` python
-experiment = mlflow.get_experiment("0")
-```
-
-### Command line
-Use MLflow CLI to create an experiment
-``` shell
-# setting environment variable
-export MLFLOW_EXPERIMENT_NAME=fraud-detection
-
-# creating the experiments
-mlflow experiments create --experiment-name fraud-detection
-```
-
-You can pass `--experiment-name [name]` or `--experiment-id [id]` to an individual run in CLI.
-``` python
-mlflow run ... --experiment-name [name]
-```
-
-## Automatic Logging
+### Automatic Logging
 MLflow provides automatic logging for many ML libraries. Automatic logging helps to log parameters, metrics and models based on convention, without the need for explicit log statements.
 
 One can use `mlflow.autolog()` which enable autologging for each supported library, or use library-specific autolog calls. 
@@ -499,55 +357,190 @@ mlruns
 
 For more details about the autologging of each supported libraries, please refer to [mlflow documentation](https://mlflow.org/docs/latest/tracking.html#automatic-logging).
 
+## Runs
+Calling one of the logging function with no active run automatically starts a new run. 
+
+To allow better control of the run, use `mlflow.start_run()` and `mlflow.end_run()` to indicate the start and end of a MLflow run.
+
+``` python
+import mlflow
+
+mlflow.start_run()
+
+# log a parameter (key-value pair)
+mlflow.log_param("param1", 1)
+
+mlflow.end_run()
+```
+`mlflow.start_run()` returns a `mlflow.ActiveRun` (`mlflow.tracking.fluent.ActiveRun`) object, which is a context manager and can be used with `with`.
+
+``` python
+import mlflow
+
+with mlflow.start_run():
+    mlflow.log_param("param1", 1)
+```
+
+You can launch multiple runs in one program by calling `with mlflow.start_run()` multiple time.
+``` python
+for lr in (0.01, 0.1, 0.5):
+    with mlflow.start_run():
+        mlflow.log_param("learning_rate", lr)
+```
+
+To resume an existing run, you can pass a `run_id` to `mlflow.start_run()` or set an environment variable `MLFLOW_RUN_ID`. (`run_id` takes precedence over `MLFLOW_RUN_ID`)
+``` python
+# initial run
+with mlflow.start_run() as run:
+    mlflow.log_param("param1", 1)
+
+# resuming the initial run
+with mlflow.start_run(run_id=run.info.run_id):
+    mlflow.log_param("param2", 2)
+```
+
+If you are running a new run, you can set the `experiment_id` and `run_name` in `mlflow.start_run()`.
+``` python
+with mlflow.start_run(experiment_id=0,
+                      run_name="potatobanana"):
+    mlflow.log_param("param1", 1)
+```
+
+To provide more metadata for a run, you can state if the run is nested, and the tags and description.
+``` python
+with mlflow.start_run(nested=False, tags={"author": "wavet"}, description="An example start run"):
+    mlflow.log_param("param1", 1)
+```
+
+You can also use `mlflow.active_run()` and `mlflow.last_active_run()` to get the active or last active run object.
+
+``` python
+import mlflow
+
+with mlflow.start_run():
+    run = mlflow.active_run()
+    print("Active run_id: {}".format(run.info.run_id))
+```
+
+There are 2 types of run objects defined in MLflow
+- `mlflow.entities.Run` (`mlflow.entities.run.Run`)
+- `mlflow.ActiveRun` (`mlflow.tracking.fluent.ActiveRun`)
+
+`mlflow.ActiveRun` object returned by `mlflow.start_run()` or `mlflow.active_run()` does not store the currently-active run attributes (parameter, metrics). To access the run attributes during the run, use `MlflowClient` as follows
+
+``` python
+client = mlflow.MlflowClient()
+data = client.get_run(mlflow.active_run().info.run_id).data
+```
+``` python
+data
+
+<RunData: metrics={'foo': 4.0}, params={'param1': '1'}, tags={'mlflow.runName': 'kindly-flea-597',
+ 'mlflow.source.name': '/home/wavet/Code/tutorial/playground-mlflow/src/main.py',
+ 'mlflow.source.type': 'LOCAL',
+ 'mlflow.user': 'wavet'}>
+```
+
+## Experiments
+MLflow can organize runs into **experiments**, which can be useful for comparing runs intended to tackle a specific task.
+
+The experiment of a run is decided in the following order
+- `experiment_id` if it is specified in `mlflow.start_run()`
+- Activated experiment using `mlflow.set_experiment()`
+- Environment variable `MLFLOW_EXPERIMENT_NAME`
+- Environment variable `MLFLOW_EXPERIMENT_ID`
+- Default experiment defined by the tracking server
+
+You can activate an experiment using `mlflow.set_experiment()`, it accepts exactly one of (`experiment_name`, `experiment_id`).
+``` python
+mlflow.set_experiment("new_experiment")
+
+with mlflow.start_run():
+    mlflow.log_param("params1", 1)
+```
+``` python
+mlflow.set_experiment(experiment_id='0')
+
+with mlflow.start_run():
+    mlflow.log_param("params1", 1)
+```
+
+To allow more configurations on the experiment, you can use `mlflow.create_experiment()`. Besides of experiment name, you can specify the `artifact_location` and experiment `tags`.
+``` python
+experiment_id = mlflow.create_experiment(
+    "Social NLP Experiments",
+    artifact_location=Path.cwd().joinpath("mlruns").as_uri(),
+    tags={"version": "v1", "priority": "P1"},
+)
+
+mlflow.set_experiment(experiment_id=experiment_id)
+```
+
+Use `mlflow.get_experiment()` to get the experiment object by experiment id.
+``` python
+experiment = mlflow.get_experiment("0")
+```
+
+### Command line
+Use MLflow CLI to create an experiment
+``` shell
+# setting environment variable
+export MLFLOW_EXPERIMENT_NAME=fraud-detection
+```
+
+``` shell
+# creating the experiments
+mlflow experiments create --experiment-name fraud-detection
+```
+
+You can pass `--experiment-name [name]` or `--experiment-id [id]` to an individual run in CLI.
+``` shell
+mlflow run ... --experiment-name [name]
+```
+
 ## Tags
+Tags are extra information that are not parameters, metrics and artifacts. Some examples include data version, model version, author. MLflow allows logging tags at run and experiment level. 
+- Use  `mlflow.set_tag()` and `mlflow.set_tags()` to set tags for a run. 
+- Use `mlflow.set_experiment_tag()` and `mlflow.set_experiment_tags()`to set tags for an experiment.
 
-## Tracking UI
+``` python
+with mlflow.start_run():
+    mlflow.set_tag("code.version": "2.2.0")
 
-## Search 
+    mlflow.set_tags({
+        "team": "engineering",
+        "dataset": "rose1"
+    })
+```
+``` python
+with mlflow.start_run():
+    mlflow.set_experiment_tag("release.version": "2.2.0")
+
+    mlflow.set_experiment_tags({
+        "company": "foobar limited",
+        "dataset_type": "flower"
+    })
+```
+Some commands (such as `create_experiment`, `start_run`, `register_model`) also accept parameter `tags` and a dictionary.
+
+Tag keys that start with `mlflow` are reserved for internal use. Please refer to [mlflow system tag documentation](https://mlflow.org/docs/latest/tracking.html#system-tags) to see the full list of system tags.
 
 ## Storage and Tracking Server
+### Storage
 Backend store and artifact store
 - `backend store` - persists MLflow entities (runs, parameters, metrics, tags, notes, metadata, etc)
 - `artifact store` - persists artifacts (files, models, images, in-memory objects, or model summary, etc)
 
-
+### Tracking Server
 The tracking server URI can be
 - Local file path `file:/my/local/dir`
-- Database `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`
-  - Support SQLAlchemy compatible database `mysql`, `mssql`, `sqlite`, `postgresql`
+- Database *(support SQLAlchemy compatible database - mysql, mssql, sqlite, postgresql)* `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`
 - HTTP server `https://my-server:5000`
 - Databricks workspace `databricks://<profileName>`
 
 `mlflow.set_tracking_uri()`
 `mlflow.get_tracking_uri()`
-
-Environment variable
-`MLFLOW_TRACKING_URI`
-
-## Commands
-### Setting Up
-Things to set up:
-- Tracking URI
-  - `mlflow.set_tracking_uri()` (or set environment variable `MLFLOW_TRACKING_URI `) - Connect to a tracking URI
-  - `mlflow.get_tracking_uri()`  - Return current tracking URI
-
-### Logging
-x-axis can be `timestamp` or `step` (not much constraint on order and sign besides of it should be integer) 
-- `mlflow.set_tag()`  
-- `mlflow.set_tags()`  
-- `mlflow.get_artifact_uri()`  
-
-### Miscellaneous
-- `MlflowClient` - tracking service API
-``` python
-from  mlflow.tracking import MlflowClient
-client = MlflowClient()
-```
-- `mlflow ui` - view tracking UI
-
-
-## Tracking Server
-`mlflow server`
+`mlflow.get-artifact_uri()`
 
 Example:
 ``` shell
@@ -556,15 +549,19 @@ mlflow server \
     --default-artifact-root s3://my-mlflow-bucket/ \
     --host 0.0.0.0
 ```
-### Storage
-#### Backend Stores
-`--backend-store-uri`
-- Default location: local `./mlruns` directory
-- Type of remote tracking URIs
-  - Local file path (eg: `file:/my/local/dir`)
-  - Database *(support mysql, mssql, sqlite, postgresql)* (encoded as `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`)
-  - HTTP Server (specified as `https://my-server:5000`)
-  - Databricks (specified as `databricks://<profileName>`)
+
+Environment variable
+`MLFLOW_TRACKING_URI`
+
+## Tracking UI
+
+## Search
+
+## Delete
+
+## MlflowClient
+
+
 
 #### Artifact Stores
 `--default-artifact-root`  
@@ -591,10 +588,33 @@ Example:
 
 If the host or host:port declaration is absent in client artifact requests to the MLflow server, the client API will assume that the host is the same as the MLflow Tracking uri.
 
+
 # MLflow Projects
 An MLflow project is a format for packaging data science code in a reusable and reproducible way, based primarily on convention. It includes an API and command-line tools for running projects.
 
 `MLproject` file
+Example
+``` yaml
+name: My Project
+
+python_env: python_env.yaml
+# or
+# conda_env: my_env.yaml
+# or
+# docker_env:
+#    image:  mlflow-docker-example
+
+entry_points:
+  main:
+    parameters:
+      data_file: path
+      regularization: {type: float, default: 0.1}
+    command: "python train.py -r {regularization} {data_file}"
+  validate:
+    parameters:
+      data_file: path
+    command: "python validate.py {data_file}"
+```
 
 
 
@@ -602,6 +622,32 @@ An MLflow project is a format for packaging data science code in a reusable and 
 An MLflow model is a standard format/convention for **packaging machine learning models** that can be **used in a variety of downstream tools** (different "flavors" that can be understood by different downstream tools).
 
 `MLmodel` file
+Example
+``` yaml
+323814279318902/7892b9756a6546fca721f36f1f270d76/artifacts/model/MLmodel 
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.8.10
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.2.0
+mlflow_version: 2.1.1
+model_uuid: 7d275a137a2e4f479587d962372f0e8b
+run_id: 7892b9756a6546fca721f36f1f270d76
+signature:
+  inputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1, 10]}}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1]}}]'
+utc_time_created: '2023-01-02 15:21:13.202769'
+```
 
 # MLflow Registry
 
