@@ -11,7 +11,8 @@
 ├── [data-engineer](data-engineer/)  
 │    ├── [README.md](data-engineer/README.md) (e)  
 │    ├── [database](data-engineer/database/)   
-│    │    └── [README.md](data-engineer/database/README.md) (e)  
+│    │    ├── [README.md](data-engineer/database/README.md) (e)  
+│    │    └── [sqlite.md](data-engineer/database/sqlite.md)  
 │    └── [glossary.md](data-engineer/glossary.md) (e)  
 ├── [data-science](data-science/)  
 │    ├── [README.md](data-science/README.md) (wip)  
@@ -69,7 +70,8 @@
 ├── data-engineer
 │   ├── README.md
 │   ├── database
-│   │   └── README.md
+│   │   ├── README.md
+│   │   └── sqlite.md
 │   └── glossary.md
 ├── data-science
 │   ├── README.md
