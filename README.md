@@ -12,7 +12,7 @@
 │    ├── [README.md](data-engineer/README.md) (e)  
 │    ├── [database](data-engineer/database/)   
 │    │    ├── [README.md](data-engineer/database/README.md) (e)  
-│    │    └── [sqlite.md](data-engineer/database/sqlite.md)  
+│    │    └── [sqlite.md](data-engineer/database/sqlite.md) (wip)  
 │    └── [glossary.md](data-engineer/glossary.md) (e)  
 ├── [data-science](data-science/)  
 │    ├── [README.md](data-science/README.md) (wip)  

@@ -2,6 +2,8 @@
 
 Layers
 
+Listener
+
 Switch
 
 Network adapter
@@ -9,6 +11,8 @@ Network adapter
 Network Address Translation (NAT)
 
 Network Interface Card (NIC)
+
+Reverse Proxy
 
 Secure Socket Layer (SSL) Cert
 

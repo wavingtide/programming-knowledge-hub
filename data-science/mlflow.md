@@ -35,18 +35,21 @@ Core philosophy:
   - [Experiments](#experiments)
     - [Command line](#command-line)
   - [Tags](#tags)
-  - [Storage and Tracking Server](#storage-and-tracking-server)
-    - [Storage](#storage)
-      - [Backend Store](#backend-store)
-      - [Artifact Store](#artifact-store)
-    - [Tracking Server](#tracking-server)
-      - [Proxied Artifact Access](#proxied-artifact-access)
-      - [Exclusive Artifact Handling](#exclusive-artifact-handling)
+  - [Storage](#storage)
+    - [Backend Store](#backend-store)
+    - [Artifact Store](#artifact-store)
+    - [Code Implementation of Backend and Artifact Store](#code-implementation-of-backend-and-artifact-store)
+  - [Tracking Server](#tracking-server)
+    - [Set up a tracking server](#set-up-a-tracking-server)
+    - [Connecting to a Tracking Server](#connecting-to-a-tracking-server)
+    - [`mlflow server` Command Options](#mlflow-server-command-options)
+      - [Enabling Proxied Artifact Storage Access](#enabling-proxied-artifact-storage-access)
+    - [Tracking Server Authentication](#tracking-server-authentication)
+    - [Tracking Server Example](#tracking-server-example)
+  - [MlflowClient](#mlflowclient)
   - [Tracking UI](#tracking-ui)
   - [Search](#search)
   - [Delete](#delete)
-  - [MlflowClient](#mlflowclient)
-      - [Artifact Stores](#artifact-stores)
 - [MLflow Projects](#mlflow-projects)
   - [Concepts](#concepts-1)
   - [`MLproject` file](#mlproject-file)
@@ -56,6 +59,7 @@ Core philosophy:
   - [API Workflow](#api-workflow)
   - [Concepts](#concepts-2)
   - [Miscellaneous](#miscellaneous)
+    - [File Store Performance](#file-store-performance)
 
 # Installation
 ``` python
@@ -533,22 +537,23 @@ Some commands (such as `create_experiment`, `start_run`, `register_model`) also 
 
 Tag keys that start with `mlflow` are reserved for internal use. Please refer to [mlflow system tag documentation](https://mlflow.org/docs/latest/tracking.html#system-tags) to see the full list of system tags.
 
-## Storage and Tracking Server
-### Storage
+## Storage
 MLflow uses two components for storage, backend store and artifact store.
-- backend store - persists MLflow entities (runs, parameters, metrics, tags, notes, metadata, etc)
+- backend store - persists MLflow entities (runs and experiment metadata, parameters, metrics, tags, notes, etc)
 - artifact store - persists artifacts (files, models, images, in-memory objects, or model summary, etc), suitable for large data
 
 Both backend store and artifact store are defaults as `./mlrun`.
 
-#### Backend Store
+### Backend Store
 MLflow supports 2 types of backend store: *file store* and *database-backend store*
 - File store backend `./path_to_store` or `file:/path_to_store`
-- Database-backend store `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`
+- Database-backend store *(support SQLAlchemy compatible database - mysql, mssql, sqlite, postgresql)* `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`. Drivers are optional.
 
-#### Artifact Store
-Example:
-- Local
+Backend store can be set using `mlflow server` in CLI, or it will follow the behaviour based on the tracking server URI set by `mlflow.set_tracking_uri`.
+
+### Artifact Store
+MLflow supports the following storage systems as artifact stores 
+- Local file paths
 - Amazon S3 and S3-compatible storage (`s3://<bucket>/<path>`)
 - Azure Blob Storage (`wasbs://<container>@<storage-account>.blob.core.windows.net/<path>`)
 - Google Cloud Storage (`gs://<bucket>/<path>`)
@@ -557,18 +562,42 @@ Example:
 - NFS (`/mnt/nfs`)
 - HDFS (`hdfs://<host>:<port>/<path>`, `hdfs://<path>`)
 
-To allow the server and clients to access the artifact location, configure your cloud provider credentials as usual. For example, set up `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variable when using S3.
+Artifact store can be set in `artifact_location` in `mlflow.create_experiment()` or `mlflow server` using CLI.
 
-### Tracking Server
-Tracking server is the server that is running the MLflow Tracking component. You can set up the backend store, artifact store of a mlflow server. It is default to be `./mlruns`
+To allow the server and clients to access the artifact location, the cloud provider credentials should be configured as usual. For example, set up `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variable when using Amazon S3.
+
+The MLflow client caches artifact location information on a per-run basis. Root artifact URI are stored as 
+- `artifact_location` property of `mlflow.entities.Experiment`
+- `artifact_uri` property of `mlflow.entities.RunInfo`
+
+For more information regarding each supported storage systems, check out [mlflow documentation](https://mlflow.org/docs/latest/tracking.html#amazon-s3-and-s3-compatible-storage).
+
+### Code Implementation of Backend and Artifact Store
+Backend store (concrete implementation of abstract class `AbstractStore`)
+- `FileStore`
+- `SQLAlchemyStore`
+- `RestStore`
+
+Artifact Store (concrete implementations of the abstract class `ArtifactRepository`)
+- `LocalArtifactRepository`
+- `S3ArtifactRepository`
+- `HttpArtifactRepository`
+
+## Tracking Server
+### Set up a tracking server
+Tracking server is the server that is running the MLflow Tracking component. You can set up the backend store, artifact store for a mlflow server. It is default to `./mlruns`.
 
 The tracking server URI can be
 - Local file path `file:/my/local/dir`
 - Database *(support SQLAlchemy compatible database - mysql, mssql, sqlite, postgresql)* `<dialect>+<driver>://<username>:<password>@<host>:<port>/<database>`
-- HTTP server `https://my-server:5000`
+- HTTP server `https://my-server:5000` (example: running on a VM)
 - Databricks workspace `databricks://<profileName>`
 
-To run an MLflow tracking server, you need to use CLI `mlflow server`. The server listens on http://localhost:5000 by default and only accepts connections from the local machine. Pass `--host 0.0.0.0` to listen on all network interfaces.
+When using a tracking server, MLflow client acts as a client connecting to the tracking server.
+
+To run an MLflow tracking server, you need to use CLI `mlflow server`. It is a CLI command because you might want to set up a server remotely, by running `mlflow server` in a remote machine.
+
+The server listens on http://localhost:5000 by default and only accepts connections from the local machine. To let the server accept connections from other machines, pass `--host 0.0.0.0` to listen on all network interfaces.
 
 Example:
 ``` shell
@@ -578,16 +607,30 @@ mlflow server \
     --host 0.0.0.0
 ```
 
+### Connecting to a Tracking Server
+After a tracking server is set up, you can set the tracking server using `mlflow.set_tracking_uri()` or set the environment variable `MLFLOW_TRACKING_URI` to connect to the tracking server.
+
+Local file
+``` python
+mlflow.set_tracking_uri("mlruns2")
+
+with mlflow.start_run():
+    mlflow.log_param("params1", 1)
+```
+
+Use `mlflow.get_tracking_uri()` and `mlflow.get_artifact_uri()` to get the tracking URI and artifact URI of the run respectively.
+
+### `mlflow server` Command Options
 `mlflow server` accepts the following command options.
-- `--backend-store-uri <URI>`
-- `--registry-store-uri <URI>`
+- `--backend-store-uri <URI>` (default: `.mlruns` directory)
+- `--registry-store-uri <URI>` (default: `backend-store-uri`)
 - `--default-artifact-root <URI>`
-- `--serve-artifacts`, `--no-serve-artifacts`
-- `--artifacts-only`
-- `--artifacts-destination <URI>`
-- `-h`, `--host <HOST>`
-- `-p`, `--port <port>`
-- `-w`, `--workers <workers>`
+- `--serve-artifacts` (default), `--no-serve-artifacts`
+- `--artifacts-only` (default: False)
+- `--artifacts-destination <URI>` (default: local `./mlartifacts` directory)
+- `-h`, `--host <HOST>` (default: 127.0.0.1)
+- `-p`, `--port <port>` (default: 5000)
+- `-w`, `--workers <workers>` (default: 4)
 - `--static-prefix <static_prefix>`
 - `--gunicorn-opts <gunicorn_opts>`
 - `--waitress-opts <waitress_opts>`
@@ -607,16 +650,38 @@ These command options are correspond to the following environment variables.
 - `MLFLOW_GUNICORN_OPTS`
 - `MLFLOW_EXPOSE_PROMETHEUS`
 
-You can set the tracking server using `mlflow.set_tracking_uri()` or set the environment variable `MLFLOW_TRACKING_URI`.
+`--backend_store-uri`, `--registry-store-uri`, `--default-artifact-root` allows the setting of URI of backend store, [MLflow model registry](#mlflow-registry) and artifact store. To use MLflow model registry, `--registry-store-uri` must be a database-backend store.
 
-Local file
-``` python
-mlflow.set_tracking_uri("mlruns2")
+`--serve-artifacts`, `--no-serve-artifacts`, `--artifacts-only` are flag for different configurations of the tracking server. 
 
-with mlflow.start_run():
-    mlflow.log_param("params1", 1)
-```
+| `--serve-artifacts` | `--no-serve-artifacts` | `--artifacts-only` |
+| --- | --- | --- |
+| Enable proxied access for artifacts | Disable proxied access for artifacts | Configures the mlflow server to be used only for proxied artifact serving |
+| ![](https://i.imgur.com/rhXDROV.png) | ![](https://i.imgur.com/jv5dq5D.png) | ![](https://i.imgur.com/wQVBISo.png) |
 
+#### Enabling Proxied Artifact Storage Access
+When using `--serve-artifacts` and `--artifacts-only` flag, the MLflow server is configured as an artifacts HTTP proxy server. Once the tracking server is configured with the appropriate access requirements and started, the users can pass artifact requests through the tracking server to store and retrieve artifacts **without having to interact with the underlying object store servies**, which eliminates the need of user authentication to the remote object store.
+
+Only when the artifact root location is set to `http` or `mlflow-artifacts` URI, `--artifacts-destination` can be set to configure the base location to resolve artifact related requests. It is default as `./mlartifacts` directory.
+
+The artifact store URI (eg: `s3:/my_bucket/mlartifacts`) will be replaced by `mlflow-artifacts:/`.
+
+When started in `--artifacts-only` mode, the tracking server will not permit any operations other than saving, loading and listing artifacts. 
+
+Provided an MLflow server configuration where the `--default-artifact-root` is `s3://my-root-bucket`. The following patterns will all resolve to the configured proxied object store location of `s3://my-root-bucket/mlartifacts`
+- `https://<host>:<port>/mlartifacts`
+- `http://<host>/mlartifacts`
+- `mlflow-artifacts://<host>/mlartifacts`
+- `mlflow-artifacts://<host>:<port>/mlartifacts`
+- `mlflow-artifacts:/mlartifacts`
+
+If the `host` or `host:port` declaration is absent in client artifact requests to the MLflow server, the client API will assume that the host is the same as the MLflow Tracking uri.
+
+When using `--artifacts-only`, the client should interact with this server explicitly by including a `host` or `host:port` definition for URI location references for artifacts. Otherwise, all artifacts requests will route to the MLflow tracking server, which defeat the purpose of running a distinct artifact store.
+
+Access credential and configuration for the artifact storage location are configured once during server initialization in the place of having user handle access credentials for artifact-based operation. All users that have access to the Tracking Server will have access to artifacts.
+
+### Tracking Server Authentication
 To allow passing HTTP authentication to the tracking server, MLflow uses the following environment variables.
 - `MLFLOW_TRACKING_USERNAME`
 - `MLFLOW_TRACKING_PASSWORD`
@@ -625,37 +690,55 @@ To allow passing HTTP authentication to the tracking server, MLflow uses the fol
 - `MLFLOW_TRACKING_SERVER_CERT_PATH` (cannot be set together with `MLFLOW_TRACKING_INSECURE_TLS`)
 - `MLFLOW_TRACKING_CLIENT_CERT_PATH`
 
-Use `mlflow.get_tracking_uri()` and `mlflow.get_artifact_uri()` to get the tracking URI and artifact URI respectively.
+Both `MLFLOW_TRACKING_INSECURE_TLS` and `MLFLOW_TRACKING_SERVER_CERT_PATH` cannot be set at the same time.
 
-#### Proxied Artifact Access
+### Tracking Server Example
+``` shell
+mlflow server --backend-store-uri file:///path/to/mlruns --no-serve-artifacts
+```
 
-#### Exclusive Artifact Handling
+``` shell
+mlflow server --backend-store-uri postgresql://user:password@postgres:5432/mlflowdb --default-artifact-root s3://bucket_name --host remote_host --no-serve-artifacts
+```
+
+``` shell
+mlflow server \
+  --backend-store-uri postgresql://user:password@postgres:5432/mlflowdb \
+  # Artifact access is enabled through the proxy URI 'mlflow-artifacts:/',
+  # giving users access to this location without having to manage credentials
+  # or permissions.
+  --artifacts-destination s3://bucket_name \
+  --host remote_host
+```
+
+``` shell
+mlflow server --artifacts-destination s3://bucket_name --artifacts-only --host remote_host
+```
+
+## MlflowClient
+MLflow provides a more detailed Tracking Service API for managing experiments and runs directly.
+
+``` python
+from  mlflow.tracking import MlflowClient
+client = MlflowClient()
+experiments = client.search_experiments() # returns a list of mlflow.entities.Experiment
+run = client.create_run(experiments[0].experiment_id) # returns mlflow.entities.Run
+client.log_param(run.info.run_id, "hello", "world")
+client.set_terminated(run.info.run_id)
+client.set_tag(run.info.run_id, "tag_key", "tag_value")
+```
 
 ## Tracking UI
+Tracking UI provides the following key features
+- Experiment-based run listing and comparison (including run comparison across multiple experiments)
+- Searching for runs by parameter or metric value
+- Visualizing run metrics
+- Downloading run results
+
 
 ## Search
 
 ## Delete
-
-## MlflowClient
-
-
-
-#### Artifact Stores
-`--default-artifact-root`  
-
-Object store location: `{URI}/mlartifacts`  
-
-- `artifact_location` - property of `mlflow.entities.Experiment`  
-- `artifact_uri` - property on `mlflow.entities.RunInfo`  
-
-
-`--serve-artifacts` - default behaviour, enable proxies access for artifacts  
-`--no-serve-artifacts` - disable proxies access for artifacts  
-`--artifact-only` - only for storing artifacts
-
-If the host or host:port declaration is absent in client artifact requests to the MLflow server, the client API will assume that the host is the same as the MLflow Tracking uri.
-
 
 # MLflow Projects
 An MLflow project is a format for packaging data science code in a reusable and reproducible way, based primarily on convention. It includes an API and command-line tools for running projects.
@@ -732,11 +815,18 @@ utc_time_created: '2023-01-02 15:21:13.202769'
 
 
 ## Miscellaneous
-MLflow will automatically try to use LibYAML bindings if they are already installed.
+### File Store Performance
+MLflow will automatically try to use LibYAML bindings if they are already installed. If there are performance issues with `file store` backend, it could mean LibYAML is not installed on your machine.
 ``` shell
 # On Ubuntu/Debian
 apt-get install libyaml-cpp-dev libyaml-dev
 
 # On macOS using Homebrew
 brew install yaml-cpp libyaml
+```
+
+After installing LibYAML, you need to reinstall PyYAML.
+``` shell
+# Reinstall PyYAML
+pip --no-cache-dir install --force-reinstall -I pyyaml
 ```
