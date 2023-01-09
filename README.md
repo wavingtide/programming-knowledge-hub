@@ -37,7 +37,7 @@
 │           ├── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
 │           └── [windows_setup.sh](environment-setup/windows/windows_setup.sh) (e)  
 ├── [git](git/)  
-│    └── [README.md](git/README.md) (e)  
+│    └── [git.md](git/git.md) (e)  
 ├── [operating-system](operating-system/)  
 │    ├── [README.md](operating-system/README.md) (e)  
 │    ├── [linux_commands.md](operating-system/linux_commands.md)  
@@ -96,7 +96,7 @@
 │       ├── windows_setup.md
 │       └── windows_setup.sh
 ├── git
-│   └── README.md
+│   └── git.md
 ├── operating-system
 │   ├── README.md
 │   ├── linux_commands.md

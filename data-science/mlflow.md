@@ -52,7 +52,11 @@ Core philosophy:
   - [Delete](#delete)
 - [MLflow Projects](#mlflow-projects)
   - [Concepts](#concepts-1)
+  - [Project Environments](#project-environments)
+  - [MLflow Project Convention](#mlflow-project-convention)
   - [`MLproject` file](#mlproject-file)
+  - [Environment Files](#environment-files)
+  - [Run a MLflow project](#run-a-mlflow-project)
 - [MLflow Models](#mlflow-models)
 - [MLflow Registry](#mlflow-registry)
   - [UI Workflow](#ui-workflow)
@@ -741,13 +745,34 @@ Tracking UI provides the following key features
 ## Delete
 
 # MLflow Projects
-An MLflow project is a format for packaging data science code in a reusable and reproducible way, based primarily on convention. It includes an API and command-line tools for running projects.
+An MLflow project is a convention for organizing and describing data science code in a reusable and reproducible way (either as a local directory or Git repository). It includes an API and command-line tools for running projects.
+
+You can describe the project in detail using `MLproject` file. MLflow can also run project based on convention of files in the project. (eg: `conda.yaml` implies Conda environment)
 
 ## Concepts
-- `entry point` - `.py` or `.sh` file that can be run within the project
+- `entry point` - Commands to run `.py` or `.sh` file within the project, and information about the parameters (data type, default values)
 - `environment` - conda environments, virtualenv environments and Docker containers that should be used to execute project entry points
 
+## Project Environments
+|  | Virtualenv environment (preferred) | Docker container environment | Conda environment | System environment |
+| --- | --- | --- | --- | --- |
+| Set up | Python environment `pyenv` <br/> Isolated environment `virtualenv` | MLflow adds a new Docker layer that copies project's contents into the `/mlflow/projects/code` directory. MLflow runs the resulted image and invoke the entry points in the resulting container. <br/><br/> Environment variables (eg: `MLFLOW_TRACKING_SERVER`) are propagated, local tracking URI are mounted inside the container (to persist log), runs and experiments are saved to tracking server | MLflow uses the system path to find and run `conda` binary. Else, you can set `MLFLOW_CONDA_HOME` environment variable (MLflow attempts to run `$MLFLOW_CONDA_HOME/bin/conda`) | Manually set up system environment and dependencies prior to project exection |
+| Supported packages | PyPI | Python and non-Python dependencies such as Java libraries | Both Python packages and native libraries (eg: CuDNN or Intel MKL) | As set up in system environment |
+| `MLproject` entry | `python_env` | `docker_env` | `conda_env` | - |
+| Detection | Automatic with `python_env.yaml` file | Need `MLProject` file | Automatic with `conda.yaml` file in the root directory | Pass as parameter when running |
+| Remark | - | - | Can be run as a virtualenv project with `mlflow run /path/to/conda/project --env-manager virtualenv` |
+
+## MLflow Project Convention
+- Project's name: directory name
+- Environment: If `conda.yaml` exists, use it. Else, create a `conda` environment with only latest available Python version installed
+- Entry point: Use Python to run `.py` file and bash to run `.sh` file
+- Entry point parameter: No parameters when no `MLproject` file. Parameters can be supplied via `mlflow.projects.run()` or `mlflow run CLI` using `--key value` syntax 
+
 ## `MLproject` file
+Text file in yaml format in root directory, specifying
+- Project name
+- Environment
+- Entry points (commands to run, parameters)
 Example
 ``` yaml
 name: My Project
@@ -771,6 +796,27 @@ entry_points:
     command: "python validate.py {data_file}"
 ```
 
+## Environment Files
+`python_env.yml` file
+``` yaml
+# Python version required to run the project.
+python: "3.8.15"
+# Dependencies required to build packages. This field is optional.
+build_dependencies:
+  - pip
+  - setuptools
+  - wheel==0.37.1
+# Dependencies required to run the project.
+dependencies:
+  - mlflow
+  - scikit-learn==1.0.2
+```
+
+## Run a MLflow project
+`mlflow run`
+`mlflow.projects.run()` Python API
+
+Remote execution on Databricks and Kubernetes
 
 
 # MLflow Models
