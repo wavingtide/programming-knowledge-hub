@@ -52,16 +52,25 @@ Core philosophy:
   - [Delete](#delete)
 - [MLflow Projects](#mlflow-projects)
   - [Concepts](#concepts-1)
-  - [Project Environments](#project-environments)
   - [MLflow Project Convention](#mlflow-project-convention)
+  - [Project Environments](#project-environments)
   - [`MLproject` file](#mlproject-file)
-  - [Environment Files](#environment-files)
-  - [Run a MLflow project](#run-a-mlflow-project)
+    - [`MLproject` Environment](#mlproject-environment)
+      - [Virtualenv environment](#virtualenv-environment)
+      - [Conda environment](#conda-environment)
+      - [Docker container environment](#docker-container-environment)
+    - [`MLproject` Entry Point](#mlproject-entry-point)
+  - [Run an MLflow project](#run-an-mlflow-project)
+    - [Run an MLflow project on Databricks](#run-an-mlflow-project-on-databricks)
+    - [Run an MLflow project on Kubernetes](#run-an-mlflow-project-on-kubernetes)
+  - [Run Multistep Workflow](#run-multistep-workflow)
 - [MLflow Models](#mlflow-models)
+  - [Concepts](#concepts-2)
+  - [`MLmodel` file](#mlmodel-file)
 - [MLflow Registry](#mlflow-registry)
   - [UI Workflow](#ui-workflow)
   - [API Workflow](#api-workflow)
-  - [Concepts](#concepts-2)
+  - [Concepts](#concepts-3)
   - [Miscellaneous](#miscellaneous)
     - [File Store Performance](#file-store-performance)
 
@@ -744,14 +753,23 @@ Tracking UI provides the following key features
 
 ## Delete
 
-# MLflow Projects
-An MLflow project is a convention for organizing and describing data science code in a reusable and reproducible way (either as a local directory or Git repository). It includes an API and command-line tools for running projects.
 
-You can describe the project in detail using `MLproject` file. MLflow can also run project based on convention of files in the project. (eg: `conda.yaml` implies Conda environment)
+# MLflow Projects
+An MLflow project is a convention for organizing and describing data science code in a **reusable and reproducible** way (either as a local directory or Git repository).
+
+You can describe the name, environment and entry point of a project using `MLproject` file. MLflow can also figure out the environment based on convention of files in the project (eg: `conda.yaml` in root directory implies Conda environment).
+
+It includes an API and command-line tools for running projects, allowing you to call a script locally or from another remote repository.
 
 ## Concepts
 - `entry point` - Commands to run `.py` or `.sh` file within the project, and information about the parameters (data type, default values)
 - `environment` - conda environments, virtualenv environments and Docker containers that should be used to execute project entry points
+
+## MLflow Project Convention
+- Project's name: directory name
+- Environment: If `conda.yaml` exists, use it. Else, create a `conda` environment with only latest available Python version installed
+- Entry point: Use Python to run `.py` file and bash to run `.sh` file
+- Entry point parameter: No parameters when no `MLproject` file. Exatra parameters can be supplied via `mlflow.projects.run()` or `mlflow run CLI` using `--key value` syntax 
 
 ## Project Environments
 |  | Virtualenv environment (preferred) | Docker container environment | Conda environment | System environment |
@@ -761,12 +779,6 @@ You can describe the project in detail using `MLproject` file. MLflow can also r
 | `MLproject` entry | `python_env` | `docker_env` | `conda_env` | - |
 | Detection | Automatic with `python_env.yaml` file | Need `MLProject` file | Automatic with `conda.yaml` file in the root directory | Pass as parameter when running |
 | Remark | - | - | Can be run as a virtualenv project with `mlflow run /path/to/conda/project --env-manager virtualenv` |
-
-## MLflow Project Convention
-- Project's name: directory name
-- Environment: If `conda.yaml` exists, use it. Else, create a `conda` environment with only latest available Python version installed
-- Entry point: Use Python to run `.py` file and bash to run `.sh` file
-- Entry point parameter: No parameters when no `MLproject` file. Parameters can be supplied via `mlflow.projects.run()` or `mlflow run CLI` using `--key value` syntax 
 
 ## `MLproject` file
 Text file in yaml format in root directory, specifying
@@ -796,8 +808,12 @@ entry_points:
     command: "python validate.py {data_file}"
 ```
 
-## Environment Files
-`python_env.yml` file
+### `MLproject` Environment
+#### Virtualenv environment  
+``` yaml
+python_env: files/config/python_env.yaml
+``` 
+Example of `python_env.yml` file
 ``` yaml
 # Python version required to run the project.
 python: "3.8.15"
@@ -812,17 +828,119 @@ dependencies:
   - scikit-learn==1.0.2
 ```
 
-## Run a MLflow project
-`mlflow run`
-`mlflow.projects.run()` Python API
+#### Conda environment
+``` yaml
+conda_env: files/config/conda_environment.yaml
+``` 
 
-Remote execution on Databricks and Kubernetes
+#### Docker container environment
+Example 1: Image name
+``` yaml
+docker_env:
+  image: mlflow-docker-example-environment
+```
+Example 2: More configuration
+``` yaml
+docker_env:
+  image: mlflow-docker-example-environment
+  volumes: ["/local/path:/container/mount/path"]
+  environment: [["NEW_ENV_VAR", "new_var_value"], "VAR_TO_COPY_FROM_HOST_ENVIRONMENT"]
+```
+Example 3: Image in remote repository
+``` yaml
+docker_env:
+  image: 012345678910.dkr.ecr.us-west-2.amazonaws.com/mlflow-docker-example-environment:7.0
+```
+Example 4: Build a new image
+Use command option `--build-image`
+``` yaml
+docker_env:
+  image: python:3.8
+```
+``` shell
+mlflow run ... --build-image
+```
+
+### `MLproject` Entry Point
+``` yaml
+entry_points:
+  main:
+    parameters:
+      data_file: path
+      regularization: {type: float, default: 0.1}
+    command: "python train.py -r {regularization} {data_file}"
+  validate:
+    parameters:
+      data_file: path
+    command: "python validate.py {data_file}"
+```
+
+Command can be any of Python [format string syntax](https://docs.python.org/2/library/string.html#formatstrings).
+
+You can specified the data type and/or default value of the parameters.
+``` yaml
+parameter_name: data_type
+
+parameter_name: {type: data_type, default: value}  # Short syntax
+
+parameter_name:     # Long syntax
+  type: data_type
+  default: value
+```
+
+The supported data types are 
+- string
+- float
+- path (local files. MLflow downloads distribute storage URI (eg: `s3://`, `dbfs://`, etc) to local files)
+- uri (local or distributed storage)
+
+MLflow converts relative paths to absolute paths.
+
+## Run an MLflow project
+There are 2 ways to run a MLflow projects, `mlflow run` and `mlflow.projects.run()`.
+
+CLI `mlflow run`
+``` shell
+mlflow run [OPTION] URI
+```
+``` shell
+mlflow run --entry-point <NAME> --version <VERSION> --param-list <NAME=VALUE> --docker-args <NAME=VALUE> --experiment-name <experiment_name> --experiment-id <experiment_id> --backend <BACKEND> --backend-config <FILE> --env-manager <env_manager> --storage-dir <storage_dir> --run-id <RUN_ID> --run-name <RUN_NAME> --build-image URI
+```
+Python API `mlflow.projects.run()`
+``` python
+mlflow.projects.run(uri, entry_point='main', version=None, parameters=None, docker_args=None, experiment_name=None, experiment_id=None, backend='local', backend_config=None, storage_dir=None, synchronous=True, run_id=None, run_name=None, env_manager=None, build_image=False)
+```
+- `URI` can be a local directory or Git repository path
+- Project `version` is commit hash or branch name for Git based project
+- `--env-manager` accepts 'local', 'virtualenv' and 'conda'. Set it as `local` will use system environment
+- `--backend` accepts 'local' (default), 'databricks' and 'kubernetes'
+
+Examples
+``` shell
+mlflow run git@github.com:mlflow/mlflow-example.git -P alpha=0.5
+```
+``` python
+mlflow.run("https://github.com/mlflow/mlflow-example", parameters={"alpha": 0.5, "l1_ratio": 0.01})
+```
+
+### Run an MLflow project on Databricks
+Refer to [MLflow documentation](https://mlflow.org/docs/latest/projects.html#run-an-mlflow-project-on-databricks)
+
+### Run an MLflow project on Kubernetes
+Refer to [MLflow documentation](https://mlflow.org/docs/latest/projects.html#run-an-mlflow-project-on-kubernetes)
+
+## Run Multistep Workflow
+Refer to [MLflow examples](https://github.com/mlflow/mlflow/tree/master/examples/multistep_workflow)
 
 
 # MLflow Models
 An MLflow model is a standard format/convention for **packaging machine learning models** that can be **used in a variety of downstream tools** (different "flavors" that can be understood by different downstream tools).
 
-`MLmodel` file
+## Concepts
+- `flavor`
+- `model signature` - description of model's inputs and outputs
+
+## `MLmodel` file
 Example
 ``` yaml
 323814279318902/7892b9756a6546fca721f36f1f270d76/artifacts/model/MLmodel 

@@ -21,8 +21,8 @@
 │    └── [mlflow.md](data-science/mlflow.md) (cur)  
 ├── [devops](devops/)  
 │    ├── [README.md](devops/README.md) (e)  
-│    └── [docker](devops/docker/)  
-│           └── [README.md](devops/docker/README.md) (e)  
+│    └── [container](devops/container/)  
+│           └── [docker.md](devops/container/docker.md) (e)  
 ├── [environment-setup](environment-setup/)  
 │    ├── [README.md](environment-setup/README.md)   
 │    ├── [linux](environment-setup/linux/)  
@@ -80,8 +80,8 @@
 │   └── mlflow.md
 ├── devops
 │   ├── README.md
-│   └── docker
-│       └── README.md
+│   └── container
+│       └── docker.md
 ├── environment-setup
 │   ├── README.md
 │   ├── linux
