@@ -12,5 +12,3 @@
   - Dependency inversion principle
 - The Twelve Factor App (https://12factor.net/)
 - Gang of Four (GoF) design pattern (https://en.wikipedia.org/wiki/Design_Patterns)
-
-
