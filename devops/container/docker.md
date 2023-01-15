@@ -543,10 +543,8 @@ We can intentionally organize the Dockerfile to reduce the recreated layer to re
 One common way is to put the dependency installation at the top of `Dockerfile` to cache the dependencies, as it is less likely to change as compared to the source code.
 
 Original `Dockerfile`
-``` shell
-FROM
-Learn more about the "FROM" Dockerfile command.
- node:18-alpine
+``` text
+FROM node:18-alpine
 WORKDIR /app
 COPY . .
 RUN yarn install --production
@@ -554,7 +552,7 @@ CMD ["node", "src/index.js"]
 ```
 
 Improved `Dockerfile`
-``` shell
+``` text
  FROM node:18-alpine
  WORKDIR /app
  COPY package.json yarn.lock ./
@@ -585,7 +583,7 @@ Benefits of using multi-stage build
 
 For example, when we are using a compiled language like Java, the compiler and package manager isn't needed in production
 
-``` shell
+``` text
 FROM maven AS build
 WORKDIR /app
 COPY . .
