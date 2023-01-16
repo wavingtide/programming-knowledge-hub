@@ -108,6 +108,7 @@ RUN echo $VERSION > image_version
 ```
 
 # `RUN`
+The `RUN` instruction will execute any commands in a new layer.
 `RUN` has 2 forms
 - `RUN <command>` (*shell form*)
 - `RUN ["executable", "param1", "param2"]` (*exec form*)
@@ -125,27 +126,90 @@ echo $HOME'
 The *exec form* is passed as a JSON array (need to use double quotes(")). 
 > It is necessary to escape backslashes in JSON form, it is especially relevant on Windows (eg: `RUN ["c:\\windows\\system32\\tasklist.exe"]`)
 
-The *exec form* does not invoke a command shell. This means that normal shell processing does not happen. For example, `RUN ["echo", "$HOME"]` will not do variable substitution on `$HOME`. You can manually passing in the desired shell `RUN ["/bin/bash", "-c", "echo hello"]`.
+The *exec form* does not invoke a command shell. This means that normal shell processing does not happen. For example, `RUN ["echo", "$HOME"]` will not do variable substitution on `$HOME`. You can manually passing in the desired shell, `RUN ["/bin/bash", "-c", "echo hello"]`.
 
 # `CMD`
 The `CMD` instruction has three forms:
-- CMD ["executable","param1","param2"] (*exec form*, preferred)
+- `CMD ["executable","param1","param2"]` (*exec form*, preferred)
 - `CMD ["param1","param2"]` (as *default parameters to ENTRYPOINT*)
 - `CMD command param1 param2` (shell form)
 
 There can only be one `CMD` instruction in a Dockerfile. If you list more than one `CMD` then only the last `CMD` will take effect.
 
-# Label
+The main purpose of a `CMD` is to provide defaults for an executing container. If you specify arguments to `docker run`, they will override the default specified in CMD.
+
+You can provide the executable (such as `/bin/sh -c`) when constructing `CMD`. Else, you can set the executable using `ENTRYPOINT`.
+
+Example:
+``` text
+FROM ubuntu
+CMD echo "This is a test." | wc -
+```
+
+``` text
+FROM ubuntu
+CMD ["/usr/bin/wc","--help"]
+```
+
+# `ENTRYPOINT`
+`ENTRYPOINT` has two forms:
+- `ENTRYPOINT ["executable", "param1", "param2"]` (*exec form*)
+- `ENTRYPOINT command param1 param2` (*shell form*)
 
 
-# Expose
 
+# `LABEL`
+The `LABEL` instruction adds metadata to an image.
 
-# Add
+``` text
+LABEL <key>=<value> <key>=<value> <key>=<value> ...
+```
 
+``` text
+LABEL "com.example.vendor"="ACME Incorporated"
+LABEL com.example.label-with-value="foo"
+LABEL version="1.0"
+LABEL description="This text illustrates \
+that label-values can span multiple lines."
+```
 
-# Copy
+You can also set multiple lables in a single instructions.
+``` text
+LABEL multi.label1="value1" multi.label2="value2" other="value3"
+```
 
+To view an image's labels, use the `docker image inspect` command. Use `--format` option to show just the labels.
+``` shell
+docker image inspect --format='' myimage
+```
+``` shell
+{
+  "com.example.vendor": "ACME Incorporated",
+  "com.example.label-with-value": "foo",
+  "version": "1.0",
+  "description": "This text illustrates that label-values can span multiple lines.",
+  "multi.label1": "value1",
+  "multi.label2": "value2",
+  "other": "value3"
+}
+```
 
-# Entrypoint
+# `EXPOSE`
+The `EXPOSE` instruction informs Docker that the container listens on the specified network ports at runtime. Can specify TCP (default) or UDP.
 
+The EXPOSE instruction does not actually publish the port. To actually publish the port, use `-p` flag on `docker run`.
+
+``` text
+EXPOSE 80/udp
+EXPOSE 80/udp
+```
+
+``` shell
+docker run -p 80:80/tcp -p 80:80/udp ...
+```
+
+# `ADD`
+The `ADD` instruction copies new files, directories or remote file URLs from `<src>` and adds them to the filesystem of the image at the path `<dest>`.
+
+# `COPY`
+The `COPY` instruction copies new files or directories from `<src>` and adds them to the filesystem of the container at the path `<dest>`.
