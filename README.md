@@ -60,7 +60,7 @@
 │    │    └── [github-actions.md](devops/cicd/github-actions.md) (e)  
 │    └── [container](devops/container/)  
 │    │    ├── [docker.md](devops/container/docker.md)  
-│    │    ├── [dockerfile-writing.md](devops/container/dockerfile-writing.md) (wip)  
+│    │    ├── [dockerfile-writing.md](devops/container/dockerfile-writing.md)  
 │    │    └── [kubernetes.md](devops/container/kubernetes.md) (e)  
 │    └── [time-series](devops/terraform.md) (e)  
 ├── [environment-setup](environment-setup/)  
@@ -91,7 +91,7 @@
 │           ├── [poetry.md](programming-language-tools/python/poetry.md)  
 │           └── [pre-commit.md](programming-language-tools/python/pre-commit.md) (wip)  
 ├── [programming-philosophy](programming-philosophy/)  
-│       └── [README.md](programming-philosophy/README.md) (wip)  
+│       └── [design-principle.md](programming-philosophy/design-principle.md) (wip)  
 └── [web-framework](web-framework/)  
        ├── [README.md](web-framework/README.md) (wip)  
        └── [fastapi](web-framework/fastapi/)  
@@ -192,7 +192,7 @@
 │       ├── poetry.md
 │       └── pre-commit.md
 ├── programming-philosophy
-│   └── README.md
+│   └── design-principle.md
 └── web-framework
     ├── README.md
     └── fastapi

@@ -1,4 +1,4 @@
-# Programming Philosophy
+# Design Principle
 
 - Code Smell (https://refactoring.guru/refactoring/smells)
 - Don't Repeat Yourself (DRY Principle)
