@@ -15,7 +15,7 @@
 │    │    ├── [README.md](data-engineer/database/README.md) (e)  
 │    │    ├── [mongodb.md](data-engineer/database/mongodb.md) (e)  
 │    │    └── [sqlite.md](data-engineer/database/sqlite.md) (wip)  
-│    ├── [dbt.md](data-engineer/dbt.md) (e)  
+│    ├── [dbt.md](data-engineer/dbt.md) (wip)  
 │    ├── [glossary.md](data-engineer/glossary.md) (e)  
 │    ├── [web-scraping](data-engineer/web-scraping/)  
 │    │    ├── [README.md](data-engineer/web-scraping/README.md) (e)  

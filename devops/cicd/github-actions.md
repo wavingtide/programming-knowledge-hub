@@ -31,3 +31,36 @@ jobs:
       - run: bats -v
 ```
 3. Commit the change and push them to your Github repository.
+
+
+# Component of yaml file
+- `name` - (Optional) The name of the workflow
+- `run-name` - (Optional) The name of the workflow runs
+``` yaml
+run-name: ${{github.actore}} is trying Github Actions
+```
+- `on` - Specific the trigger/event which cause the workflow to run.
+``` yaml
+on: [push, fetch]
+```
+- `env` - Set variable available to the steps of all jobs in the workflow.
+``` yaml
+env:
+  SERVER: prod
+```
+- `jobs` - A workflow run is made up of one or more `jobs`.
+``` yaml
+jobs:
+  my_first_job:
+    name: My first job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - run: npm install -g bats
+  my_second_job:
+    name: My second job
+
+```
