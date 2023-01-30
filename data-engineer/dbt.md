@@ -1,5 +1,6 @@
 # dbt
-*(refer to [dbt documentation](https://docs.getdbt.com/))
+*(refer to [dbt documentation](https://docs.getdbt.com/))*  
+*(based on dbt version 1.4.1)*
 
 dbt has two products:
 - dbt Core: An open-source tool that enables data teams to transform data using analytics engineering best practices
@@ -14,7 +15,7 @@ dbt has two products:
   - [Install with pip](#install-with-pip)
   - [Install with Docker](#install-with-docker)
   - [Install from Source](#install-from-source)
-- [dbt Core](#dbt-core)
+- [Getting started with dbt Core](#getting-started-with-dbt-core)
 
 # Popular Supported Data Platform
 - Azure Synapse
@@ -104,5 +105,43 @@ cd dbt-redshift
 pip install .
 ```
 
-# dbt Core
+# Getting started with dbt Core
+Prerequisites: 
+1. `pip install dbt-bigquery`
+2. Create GCP account and [Setting up (in BigQuery)](https://docs.getdbt.com/docs/get-started/getting-started/getting-set-up/setting-up-bigquery#setting-up) and [Loading data (BigQuery)](https://docs.getdbt.com/docs/get-started/getting-started/getting-set-up/setting-up-bigquery#loading-data)
+3. Create a service account on GCP, granted the role of 'BigQuery Admin' and download the service account key. Move the service account key to `~/.dbt/` folder.
+4. Create a [Github account](https://github.com/join).
 
+Steps:
+1. Initiate the `jaffle_shop` project using the `init` command. It will create an interative session for you to set the configuration and additional infomation.
+    ``` shell
+    dbt init jaffle_shop
+    ```
+    ![](https://i.imgur.com/dATqXFN.png)
+    
+    This will create a file structure as follows.
+    ``` shell
+    jaffle_shop/
+    ├── README.md
+    ├── analyses
+    ├── dbt_project.yml
+    ├── macros
+    ├── models
+    │   └── example
+    │       ├── my_first_dbt_model.sql
+    │       ├── my_second_dbt_model.sql
+    │       └── schema.yml
+    ├── seeds
+    ├── snapshots
+    └── tests
+    ```
+    It will also create a profile file `~/.dbt/profiles.yml`
+    ![](https://i.imgur.com/n3Z9tRM.png)
+2. Navigate into your project directory
+    ``` shell
+    cd jaffle_shop
+    ```
+3. Run `dbt debug` to ensure that the setup is working as expected.
+    ![](https://i.imgur.com/EpaJdpm.png)
+4. Run `dbt run` to build example models
+    ![](https://i.imgur.com/nVUFxft.png)
