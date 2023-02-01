@@ -5,6 +5,11 @@
 .  
 ├── [LICENSE](LICENSE)  
 ├── [README.md](README.md)  
+├── [cloud](cloud/)  
+│    ├── [aws](cloud/aws/)  
+│    │    └── [boto3.md](cloud/aws/boto3.md) (e)  
+│    └── [gcp](cloud/gcp/)  
+│           └── [gcloud.md](cloud/gcp/gcloud.md) (e)  
 ├── [computer-science](computer-science/)  
 │    ├── [README.md](computer-science/README.md) (e)  
 │    ├── [data-structure-and-algorithm.md](computer-science/data-structure-and-algorithm.md) (e)  
@@ -90,8 +95,9 @@
 │           ├── [pipx.md](programming-language-tools/python/pipx.md)  
 │           ├── [poetry.md](programming-language-tools/python/poetry.md)  
 │           └── [pre-commit.md](programming-language-tools/python/pre-commit.md) (wip)  
-├── [programming-philosophy](programming-philosophy/)  
-│       └── [design-principle.md](programming-philosophy/design-principle.md) (wip)  
+├── [software-engineering-philosophy](software-engineering-philosophy/)  
+│    ├── [design-document](software-engineering-philosophy/design-document.md) (e)  
+│    └── [design-principle.md](software-engineering-philosophy/design-principle.md) (wip)  
 └── [web-framework](web-framework/)  
        ├── [README.md](web-framework/README.md) (wip)  
        └── [fastapi](web-framework/fastapi/)  
@@ -106,6 +112,11 @@
 .
 ├── LICENSE
 ├── README.md
+├── cloud
+│   ├── aws
+│   │   └── boto3.md
+│   └── gcp
+│       └── gcloud.md
 ├── computer-science
 │   ├── README.md
 │   ├── data-structure-and-algorithm.md
@@ -191,7 +202,8 @@
 │       ├── pipx.md
 │       ├── poetry.md
 │       └── pre-commit.md
-├── programming-philosophy
+├── software-engineering-philosophy
+│   ├── design-document.md
 │   └── design-principle.md
 └── web-framework
     ├── README.md
