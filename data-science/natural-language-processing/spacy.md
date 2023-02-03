@@ -6,8 +6,23 @@ spaCy is a free, open-source library for advanced Natural Language Processing (N
 # Table of Contents
 - [spaCy](#spacy)
 - [Table of Contents](#table-of-contents)
+- [Installation](#installation)
 - [Features](#features)
+- [Pipeline](#pipeline)
 - [Tokenization](#tokenization)
+
+# Installation
+``` shell
+pip install spacy
+python -m spacy download en_core_web_sm
+```
+
+`en_core_web_sm` is an example of trained pipeline by spaCy. The structure is of `[lang]_[type]_[genre]_[size]`.
+- `type`: `core` for general-purpose, `dep`
+- `genre`: `web` and `news`
+- `size`: `sm`, `md`, `lg`, `trf`
+
+spaCy supports different human language models,which can be found on [spacy Documentation](https://spacy.io/usage).
 
 # Features
 | NAME | DESCRIPTION |
@@ -25,6 +40,11 @@ spaCy is a free, open-source library for advanced Natural Language Processing (N
 | Training | Updating and improving a statistical model’s predictions. |
 | Serialization | Saving objects to files or byte strings. |
 
+
+# Pipeline
+![](https://spacy.io/images/pipeline.svg)
+
+When you call `nlp` on a text, spaCy tokenizes the text to produce a `Doc` object. After that, it is processed in several steps, called processing pipeline.
 
 # Tokenization
 ``` python
