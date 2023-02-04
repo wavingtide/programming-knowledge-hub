@@ -9,7 +9,8 @@
 │    ├── [aws](cloud/aws/)  
 │    │    └── [boto3.md](cloud/aws/boto3.md) (e)  
 │    └── [gcp](cloud/gcp/)  
-│           └── [gcloud.md](cloud/gcp/gcloud.md) (e)  
+│           ├── [gcloud.md](cloud/gcp/gcloud.md) (e)  
+│           └── [gke.md](cloud/gcp/gke.md) (e)  
 ├── [computer-science](computer-science/)  
 │    ├── [README.md](computer-science/README.md) (e)  
 │    ├── [data-structure-and-algorithm.md](computer-science/data-structure-and-algorithm.md) (e)  
@@ -50,12 +51,12 @@
 │    ├── [kaggle.md](data-science/kaggle.md) (e)  
 │    ├── [mlops](data-science/mlops/)  
 │    │    ├── [README.md](data-science/mlops/README.md) (wip)  
-│    │    └── [mlflow.md](data-science/mlops/mlflow.md) (cur)  
+│    │    └── [mlflow.md](data-science/mlops/mlflow.md) (wip)  
 │    ├── [natural-language-processing](data-science/natural-language-processing/)  
 │    │    ├── [README.md](data-science/natural-language-processing/README.md) (e)  
 │    │    ├── [gensim.md](data-science/natural-language-processing/gensim.md) (e)  
 │    │    ├── [nltk.md](data-science/natural-language-processing/nltk.md) (e)  
-│    │    └── [spacy.md](data-science/natural-language-processing/spacy.md) (e)  
+│    │    └── [spacy.md](data-science/natural-language-processing/spacy.md) (cur)  
 │    └── [time-series](data-science/time-series/)  
 │           └── [darts.md](data-science/time-series/darts.md) (e)  
 ├── [devops](devops/)  
@@ -116,7 +117,8 @@
 │   ├── aws
 │   │   └── boto3.md
 │   └── gcp
-│       └── gcloud.md
+│       ├── gcloud.md
+│       └── gke.md
 ├── computer-science
 │   ├── README.md
 │   ├── data-structure-and-algorithm.md
