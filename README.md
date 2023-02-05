@@ -92,7 +92,12 @@
 │    └── [windows_commands.md](operating-system/windows_commands.md) (wip)  
 ├── [programming-language-tools](programming-language-tools/)  
 │    ├── [README.md](programming-language-tools/README.md) (e)  
+│    ├── [javascript](programming-language-tools/javascript/)  
+│    │    ├── [README.md](programming-language-tools/javascript/README.md) (wip)  
+│    │    ├── [node.md](programming-language-tools/javascript/node.md) (e)  
+│    │    └── [react.md](programming-language-tools/javascript/react.md) (cur)  
 │    └── [python](programming-language-tools/python/)  
+│           ├── [README.md](programming-language-tools/python/README.md)  
 │           ├── [pipx.md](programming-language-tools/python/pipx.md)  
 │           ├── [poetry.md](programming-language-tools/python/poetry.md)  
 │           └── [pre-commit.md](programming-language-tools/python/pre-commit.md) (wip)  
@@ -200,7 +205,12 @@
 │   └── windows_commands.md
 ├── programming-language-tools
 │   ├── README.md
+│   ├── javascript
+│   │   ├── README.md
+│   │   ├── node.md
+│   │   └── react.md
 │   └── python
+│       ├── README.md
 │       ├── pipx.md
 │       ├── poetry.md
 │       └── pre-commit.md
