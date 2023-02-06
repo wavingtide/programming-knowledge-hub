@@ -56,6 +56,7 @@
 │    │    ├── [README.md](data-science/natural-language-processing/README.md) (e)  
 │    │    ├── [gensim.md](data-science/natural-language-processing/gensim.md) (e)  
 │    │    ├── [nltk.md](data-science/natural-language-processing/nltk.md) (e)  
+│    │    ├── [openai.md](data-science/natural-language-processing/openai.md)  
 │    │    └── [spacy.md](data-science/natural-language-processing/spacy.md) (cur)  
 │    └── [time-series](data-science/time-series/)  
 │           └── [darts.md](data-science/time-series/darts.md) (e)  
@@ -169,6 +170,7 @@
 │   │   ├── README.md
 │   │   ├── gensim.md
 │   │   ├── nltk.md
+│   │   ├── openai.md
 │   │   └── spacy.md
 │   └── time-series
 │       └── darts.md
