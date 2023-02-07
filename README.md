@@ -82,7 +82,7 @@
 │    │    └── [hyper_v.md](environment-setup/virtual-machine/hyper_v.md) (e)  
 │    └── [windows](environment-setup/windows/)  
 │           ├── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
-│           └── [windows_setup.sh](environment-setup/windows/windows_setup.sh) (e)  
+│           └── [windows_setup.ps1](environment-setup/windows/windows_setup.ps1) (e)  
 ├── [git](git/)  
 │    ├── [git.md](git/git.md)  
 │    └── [github.md](git/github.md) (wip)  
@@ -196,7 +196,7 @@
 │   │   └── hyper_v.md
 │   └── windows
 │       ├── windows_setup.md
-│       └── windows_setup.sh
+│       └── windows_setup.ps1
 ├── git
 │   ├── git.md
 │   └── github.md
