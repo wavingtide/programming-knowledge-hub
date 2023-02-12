@@ -39,7 +39,18 @@ export default function MyApp() {
 ```
 
 ## Markup and Style
-JSX is a convenient and optional markup syntax. It is a syntax extension of JavaScript.
+JSX is a convenient and optional markup syntax. It is a syntax extension of JavaScript. A component can only return one JSX tags. You have to wrap there into a shared parent, like a `<div>...</div>` or an empty `<>...</>` wrapper.
+``` javascript
+function AboutPage() {
+  return (
+    <>
+      <h1>About</h1>
+      <p>Hello there.<br />How do you do?</p>
+    </>
+  )
+}
+
+```
 
 To add style, specify a CSS class with classname.
 ``` javascript
