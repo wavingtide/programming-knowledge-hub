@@ -55,6 +55,7 @@
 │    ├── [natural-language-processing](data-science/natural-language-processing/)  
 │    │    ├── [README.md](data-science/natural-language-processing/README.md) (e)  
 │    │    ├── [gensim.md](data-science/natural-language-processing/gensim.md) (cur)  
+│    │    ├── [keybert.md](data-science/natural-language-processing/keybert.md)  
 │    │    ├── [nltk.md](data-science/natural-language-processing/nltk.md) (e)  
 │    │    ├── [openai.md](data-science/natural-language-processing/openai.md)  
 │    │    └── [spacy.md](data-science/natural-language-processing/spacy.md) (wip)  
@@ -169,6 +170,7 @@
 │   ├── natural-language-processing
 │   │   ├── README.md
 │   │   ├── gensim.md
+│   │   ├── keybert.md
 │   │   ├── nltk.md
 │   │   ├── openai.md
 │   │   └── spacy.md
