@@ -8,6 +8,8 @@ The Hugging Face Hub is a platform with 120k models, 20k datasets, and 50k demo 
 - [Hugging Face](#hugging-face)
 - [Table of Contents](#table-of-contents)
 - [Components](#components)
+- [Installation](#installation)
+- [Handle Large Files](#handle-large-files)
 
 
 # Components
@@ -27,4 +29,29 @@ The Hugging Face Hub is a platform with 120k models, 20k datasets, and 50k demo 
   - Signing commits with GPG
   - Malware scanning
 
-The Hub also offers Github repositories functions like versioning, commit history, diffs, branches and over a dozen library integrations.
+The Hub store models, spaces and datasets as Git repositories, and hence also come with functions like versioning, commit history, diffs, branches and over a dozen library integrations.
+
+
+# Installation
+``` shell
+pip install huggingface_hub
+huggingface-cli login
+```
+
+# Handle Large Files
+Install Git Large File Storage (lfs)
+``` shell
+git lfs install
+```
+
+Set up `.gitattributes`
+``` shell
+huggingface-cli lfs-enable-largefiles .
+```
+
+To add more extensions/file types to track
+``` shell
+git lfs track "*.your_extension"
+```
+
+

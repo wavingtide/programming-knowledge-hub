@@ -47,7 +47,7 @@
 │    │    └── [tensorflow.md](data-science/deep-learning/tensorflow.md) (e)  
 │    ├── [graph-data-science](data-science/graph-data-science/)  
 │    │    └── [networkx.md](data-science/graph-data-science/networkx.md) (e)  
-│    ├── [huggingface.md](data-science/huggingface.md) (e)  
+│    ├── [huggingface.md](data-science/huggingface.md) (wip)  
 │    ├── [hyperopt.md](data-science/hyperopt.md) (e)  
 │    ├── [kaggle.md](data-science/kaggle.md) (e)  
 │    ├── [mlops](data-science/mlops/)  
