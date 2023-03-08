@@ -13,6 +13,7 @@ The Hugging Face Hub is a platform with 120k models, 20k datasets, and 50k demo 
 - [Transformer](#transformer)
   - [Installation](#installation-1)
   - [Pipeline](#pipeline)
+- [Datasets](#datasets)
 
 
 # Components
@@ -91,3 +92,30 @@ Using `pipeline()` is the easiest way to use a pretrained model for inference. Y
 | Audio classification | assign a label to an audio file | Audio | pipeline(task="audio-classification") |
 | Automatic speech recognition | extract speech from an audio file into text | Audio | pipeline(task="automatic-speech-recognition") |
 | Visual question answering | given an image and a question, correctly answer a question about the image | Multimodal | pipeline(task="vqa") |
+
+Example:
+``` python
+from transformers import pipeline
+classifier = pipeline("sentiment-analysis")
+print(classifier("We are very happy."))
+print(classifier(["We are very happy.", "We hope you don't hate it."]))
+```
+
+``` python
+[{'label': 'POSITIVE', 'score': 0.9998819828033447}]
+[{'label': 'POSITIVE', 'score': 0.9998819828033447}, {'label': 'NEGATIVE', 'score': 0.5308645963668823}]
+```
+
+The `pipeline()` will downloads and caches a default pretrained model and tokenizer.
+
+You can also specify the model of interest.
+``` python
+speech_recognizer = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
+```
+
+# Datasets
+``` python
+from datasets import load_dataset
+
+dataset = load_dataset("PolyAI/minds14", name="en-US", split="train")
+```
