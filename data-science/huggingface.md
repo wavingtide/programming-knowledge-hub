@@ -14,6 +14,8 @@ The Hugging Face Hub is a platform with 120k models, 20k datasets, and 50k demo 
   - [Installation](#installation-1)
   - [Pipeline](#pipeline)
 - [Datasets](#datasets)
+  - [Installation](#installation-2)
+  - [Usage](#usage)
 
 
 # Components
@@ -113,7 +115,30 @@ You can also specify the model of interest.
 speech_recognizer = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
 ```
 
+If you need specific tokenizer and model.
+``` python
+model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
+
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+```
+
+For tensorflow, replace `AutoModelForSequenceClassification` with `TFAutoModelForSequenceClassification`.
+
+``` python
+classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+classifier("Nous sommes très heureux de vous présenter la bibliothèque 🤗 Transformers.")
+```
+
 # Datasets
+## Installation
+``` shell
+pip install datasets
+```
+
+## Usage
 ``` python
 from datasets import load_dataset
 
