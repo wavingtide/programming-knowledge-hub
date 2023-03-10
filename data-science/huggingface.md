@@ -16,6 +16,7 @@ The Hugging Face Hub is a platform with 120k models, 20k datasets, and 50k demo 
 - [Datasets](#datasets)
   - [Installation](#installation-2)
   - [Usage](#usage)
+- [Diffuser](#diffuser)
 
 
 # Components
@@ -132,6 +133,14 @@ classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 classifier("Nous sommes très heureux de vous présenter la bibliothèque 🤗 Transformers.")
 ```
 
+AutoFeatureExtractor
+``` python
+from transformers import AutoModelForAudioClassification, AutoFeatureExtractor
+
+model = AutoModelForAudioClassification.from_pretrained("facebook/wav2vec2-base")
+feature_extractor = AutoFeatureExtractor.from_pretrained("facebook/wav2vec2-base")
+```
+
 # Datasets
 ## Installation
 ``` shell
@@ -144,3 +153,18 @@ from datasets import load_dataset
 
 dataset = load_dataset("PolyAI/minds14", name="en-US", split="train")
 ```
+
+Upsample with `cast_column()` function.
+``` python
+from datasets import load_dataset, Audio
+
+dataset = dataset.cast_column("audio", Audio(sampling_rate=16000))
+```
+
+Rename column
+``` python
+dataset = dataset.rename_column("intent_class", "labels")
+```
+
+# Diffuser
+
