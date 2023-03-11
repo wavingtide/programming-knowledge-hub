@@ -42,6 +42,7 @@
 │    │    └── [opencv.md](data-science/computer-vision/opencv.md) (e)  
 │    ├── [deep-learning](data-science/deep-learning/)  
 │    │    ├── [README.md](data-science/deep-learning/README.md) (e)  
+│    │    ├── [architecture.md](data-science/deep-learning/architecture.md) (e)  
 │    │    ├── [keras.md](data-science/deep-learning/keras.md) (e)  
 │    │    ├── [pytorch.md](data-science/deep-learning/pytorch.md) (e)  
 │    │    └── [tensorflow.md](data-science/deep-learning/tensorflow.md) (e)  
@@ -85,9 +86,6 @@
 │    └── [windows](environment-setup/windows/)  
 │           ├── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
 │           └── [windows_setup.ps1](environment-setup/windows/windows_setup.ps1) (e)  
-├── [git](git/)  
-│    ├── [git.md](git/git.md)  
-│    └── [github.md](git/github.md) (wip)  
 ├── [operating-system](operating-system/)  
 │    ├── [README.md](operating-system/README.md) (e)  
 │    ├── [linux_commands.md](operating-system/linux_commands.md)  
@@ -107,6 +105,10 @@
 ├── [software-engineering-philosophy](software-engineering-philosophy/)  
 │    ├── [design-document](software-engineering-philosophy/design-document.md) (e)  
 │    └── [design-principle.md](software-engineering-philosophy/design-principle.md) (wip)  
+├── [version-control-system](version-control-system/)  
+│    ├── [git-workflow.md](version-control-system/git-workflow.md)  
+│    ├── [git.md](version-control-system/git.md)  
+│    └── [github.md](version-control-system/github.md) (wip)  
 └── [web-framework](web-framework/)  
        ├── [README.md](web-framework/README.md) (wip)  
        └── [fastapi](web-framework/fastapi/)  
@@ -158,6 +160,7 @@
 │   │   └── opencv.md
 │   ├── deep-learning
 │   │   ├── README.md
+│   │   ├── architecture.md
 │   │   ├── keras.md
 │   │   ├── pytorch.md
 │   │   └── tensorflow.md
@@ -201,9 +204,6 @@
 │   └── windows
 │       ├── windows_setup.md
 │       └── windows_setup.ps1
-├── git
-│   ├── git.md
-│   └── github.md
 ├── operating-system
 │   ├── README.md
 │   ├── linux_commands.md
@@ -223,6 +223,10 @@
 ├── software-engineering-philosophy
 │   ├── design-document.md
 │   └── design-principle.md
+├── version-control-system
+│   ├── git-workflow.md
+│   ├── git.md
+│   └── github.md
 └── web-framework
     ├── README.md
     └── fastapi
