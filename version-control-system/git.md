@@ -21,6 +21,8 @@
 - [Show history](#show-history)
 - [Show diff](#show-diff)
 - [`.gitignore` file](#gitignore-file)
+- [Moving around](#moving-around)
+- [Cherry pick](#cherry-pick)
 
 
 # Initiate a project
@@ -379,3 +381,28 @@ git diff branch1..branch2
 Add the file that git will ignore, eg: cache file, generated file, dependencies, etcs
 
 Refer to https://github.com/github/gitignore
+
+# Moving around
+Move upwards a commit with `^`.
+``` shell
+# move the HEAD upwards by 2 commits
+git checkout main^^
+```
+
+Move upwards a commit with `~<num>`.
+``` shell
+# move the HEAD upwards by 2 commits
+git checkout main~2
+```
+
+Reassign a branch.
+``` shell
+# Move the main branch to three parents before HEAD
+git branch -f main HEAD~3
+```
+
+# Cherry pick
+Pick `<commit>` from another branch to add to the HEAD branch.
+``` shell
+git cherry-pick <commit1> <commit2>
+```
