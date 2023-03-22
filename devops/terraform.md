@@ -8,6 +8,7 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
 - [Terraform](#terraform)
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
+  - [Miscellaneous](#miscellaneous)
 - [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
 
@@ -20,6 +21,23 @@ For Ubuntu/Debian, run
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install terraform
+```
+
+## Miscellaneous
+Terraform has a version manager called [tfenv](https://github.com/tfutils/tfenv).
+
+To install it in mac, you can use homebrew
+``` shell
+brew install tfenv
+```
+
+To install it in Linux, you can run 
+``` shell
+git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
+```
+Add it to PATH.
+``` shell
+echo 'export PATH=$PATH:$HOME/.tfenv/bin' >> ~/.bashrc
 ```
 
 
@@ -65,6 +83,11 @@ export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 ```
 
+Initializing terraform
+``` shell
+terraform init
+```
+
 Check formatting
 ``` shell
 terraform fmt
@@ -78,4 +101,17 @@ terraform plan
 Apple the configuration
 ``` shell
 terraform apply
+```
+
+It can be helpful to save the plan into a file and apply it from the file.
+``` shell
+terraform plan -out tf.plan
+```
+``` shell
+terraform apply "tf.plan"
+```
+
+To remove the resource.
+``` shell
+terraform destroy
 ```

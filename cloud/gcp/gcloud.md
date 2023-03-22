@@ -39,4 +39,5 @@ Run
 gcloud init
 ```
 
-
+![](https://i.imgur.com/Adttcos.png)
+![](https://i.imgur.com/IyY5zBt.png)
