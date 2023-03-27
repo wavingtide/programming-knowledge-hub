@@ -41,3 +41,10 @@ gcloud init
 
 ![](https://i.imgur.com/Adttcos.png)
 ![](https://i.imgur.com/IyY5zBt.png)
+
+To get authenticated, run
+``` shell
+gcloud auth application-default login
+```
+
+![](https://i.imgur.com/m4EGxjs.png)

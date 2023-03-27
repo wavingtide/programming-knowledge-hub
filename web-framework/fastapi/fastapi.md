@@ -240,6 +240,21 @@ async def create_item(item_id: int, item: Item, q: Union[str, None] = None):
 
 ## Intermediate: Query and Path Parameters Customization
 We can set the default value of the function parameters as a `Query` or `Path` object. As it is an object, it comes with more customizations options. (both are subclass of `Param` class, which is subclass of Pydantic's `FieldInfo` class.)
+
+We should use it with `Annotated` in type.
+``` python
+from fastapi import FastAPI, Path, Query
+from typing_extensions import Annotated
+
+@app.get("/items/{item_id}")
+async def read_items(
+    item_id: Annotated[int, Path(title="Item ID")],
+    q: Annotated[Union[str, None], Query(max_length=50)] = None
+  ):
+  return {"q": q}
+```
+
+This is the older method of FastAPI (before version `0.95.0`) which set the default value as the `Query` and `Path` object. It might not work if you call the function without FastAPI. You will need to pass the arguments to the functions.
 ``` python
 from fastapi import FastAPI, Path, Query
 
@@ -257,7 +272,7 @@ async def read_items(
 - For string
   - `min_length`
   - `max_length`
-  - `regex` (eg:"^exact_match*")
+  - `regex` (e.g."^exact_match*")
 - For number
   - `ge` (greater equal)
   - `le` (less equal)
@@ -273,8 +288,8 @@ async def read_items(
 ``` python
 @app.get("/items/{item_id}")
 async def read_items(
-      q: str = Query(title="Title", min_length=1)
-      item_id: int = Path(default=50, gt=0, le=100)
+      q: Annotated[str, Query(title="Title", min_length=1)],
+      item_id: Annotated[int, Path(gt=0, le=100)] = 50
     ):
     return {"q": q}
 ```
@@ -288,7 +303,7 @@ Else, if the query parameters can accept `None`, do one of the following:
 
 ``` python
 @app.get("/items")
-async def read_items(q: int = Query(default=..., gt=0, lt=100)):
+async def read_items(q: Annotated[int, Query(gt=0, lt=100)] = ...):
     return {"q": q}
 ```
 
@@ -297,7 +312,7 @@ Set the typehint as a `List`. (Need to set default value as `Query` object to av
 
 ``` python
 @app.get("/items")
-async def read_items(q: Union[List[str], None] = Query(default=None)):
+async def read_items(q: Annotated[Union[List[str], None], Query()] = None):
     return {"q": q}
 ```
 URL will look like
@@ -319,15 +334,15 @@ Reponse
 If we want to make a singular type parameter (`int`, `str`, etcs) a body parameter instead of a query parameter, we can use `Body`. It provides the same customizations and validations as `Query` and `Path`.
 ``` python
 @app.post("/items")
-async def update_item(price: int = Body()):
+async def update_item(price: Annotated[int, Body()]):
     return price
 ```
-It will expect a single integer as request body in this case (eg: `10`).
+It will expect a single integer as request body in this case (e.g. `10`).
 
 If there is only 1 singular type body parameters, it might be better to add `embed=True` to embed the body parameter.
 ``` python
 @app.post("/items")
-async def update_item(price: int = Body(embed=True)):
+async def update_item(price: Annotated[int, Body(embed=True)]):
     return price
 ```
 
@@ -351,7 +366,7 @@ class User(BaseModel):
     full_name: Union[str, None] = None
 
 @app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item, user: User, price: int = Body()):
+async def update_item(item_id: int, item: Item, user: User, price: Annotated[int, Body()]):
     results = {"item_id": item_id, "item": item, "user": user}
     return results
 ```
@@ -606,7 +621,7 @@ async def create_files(files: List[bytes] = File(description="Multiple files as 
 #### `UploadFile`
 Attributes of `UploadFile`:
 - filename: str
-- content_type: str (eg: image/jpeg)
+- content_type: str (e.g. image/jpeg)
 - file: [SpooledTemporaryFile](https://docs.python.org/3/library/tempfile.html#tempfile.SpooledTemporaryFile)
 
 Async methods of `UploadFile`:
@@ -703,7 +718,7 @@ In this case, `/items/foo` will not return the default value as there are unset.
 ```
 
 ## Response Status Code
-We can specify the HTTP status code used for the response with the parameter `status_code` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (eg: `fastapi.status.HTTP_201_CREATED`)
+We can specify the HTTP status code used for the response with the parameter `status_code` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (e.g. `fastapi.status.HTTP_201_CREATED`)
 ``` python
 @app.post("/items/", status_code=201)
 async def create_item(name: str):
@@ -725,6 +740,12 @@ Example of defining optional list with string elements:
 - For Python 3.10 and above:
 `q: list[str] | None`
 
+Example of importing `Annotated`:
+- For Python 3.6 and above:
+`from typing_extensions import Annotated`
+
+- For Python 39 and above:
+`from typing import Annotated`
 
 ## Python Tricks
 ### Order Function Parameters as We Need

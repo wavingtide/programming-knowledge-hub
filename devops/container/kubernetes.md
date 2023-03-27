@@ -8,6 +8,8 @@
 - [Components](#components)
 - [`kubectl`](#kubectl)
   - [Installation](#installation)
+- [`minikube`](#minikube)
+  - [Installation](#installation-1)
 
 
 # Components
@@ -59,3 +61,20 @@ Update `apt` package index and install `kubectl`.
 sudo apt-get update
 sudo apt-get install -y kubectl
 ```
+
+# `minikube`
+*(refer to [official documentation](https://minikube.sigs.k8s.io/docs/start/))*
+minikube is local Kubernetes.
+
+## Installation
+**For Linux**
+``` shell
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+```
+
+``` shell
+minikube start
+```
+![](https://i.imgur.com/3sk6A7y.png)
+

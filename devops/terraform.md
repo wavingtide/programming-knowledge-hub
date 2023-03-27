@@ -87,6 +87,7 @@ Initializing terraform
 ``` shell
 terraform init
 ```
+![](https://i.imgur.com/5Rbtolu.png)
 
 Check formatting
 ``` shell
