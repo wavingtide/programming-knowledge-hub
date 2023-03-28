@@ -43,6 +43,8 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [Using both Forms and Files](#using-both-forms-and-files)
 - [API Output - Response](#api-output---response)
   - [Response Body](#response-body)
+    - [Other Response Body Type Annotations](#other-response-body-type-annotations)
+    - [Response Body Customization](#response-body-customization)
   - [Response Status Code](#response-status-code)
 - [Miscellaneous](#miscellaneous)
   - [Typehint](#typehint)
@@ -58,6 +60,12 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
 - Path / endpoint / route
 - Schema
 - Server Gateway Interface
+- HTTP Status Code
+  - `100`: Information
+  - `200`: Successful
+  - `300`: Redirection
+  - `400`: Client Error
+  - `500`: Server Error
 
 # Underlying and Relevant Technology
 - API Schema Definition (API Paths, Possible parameters, JSON data schemas)
@@ -480,18 +488,18 @@ class Item(BaseModel):
 #### `example` and `examples` in OpenAPI
 ``` python
 @app.post("/items")
-async def update_item(item: Union[Item, None] = Body(
+async def update_item(item: Annotated[Union[Item, None], Body(
     example={
         "name": "FastAPI",
         "price": 26.8
     }
-)):
+)]):
     return item
 ```
 
 ``` python
 @app.post("/items")
-async def update_item(item: Union[Item, None] = Body(
+async def update_item(item: Annotated[Union[Item, None], Body(
     examples={
         "first": {
             "summary": "first example",
@@ -509,7 +517,7 @@ async def update_item(item: Union[Item, None] = Body(
         }
         }
     }
-)):
+)]):
     return item
 ```
 ![](https://i.imgur.com/ij9NPwx.png)
@@ -529,7 +537,7 @@ from fastapi import Cookie, FastAPI
 app = FastAPI()
 
 @app.get("/items/")
-async def read_items(ads_id: Union[str, None] = Cookie(default=None)):
+async def read_items(ads_id: Annotated[Union[str, None], Cookie(default=None)]):
     return {"ads_id": ads_id}
 ```
 
@@ -541,7 +549,7 @@ from fastapi import FastAPI, Header
 app = FastAPI()
 
 @app.get("/items/")
-async def read_items(user_agent: Union[str, None] = Header(default=None)):
+async def read_items(user_agent: Annotated[Union[str, None], Header(default=None)]):
     return {"User-Agent": user_agent}
 ```
 Characteristics of headers:
@@ -551,14 +559,14 @@ Characteristics of headers:
 
 By default, `Header` will convert parameter names characters from underscore (`_`) to hyphen(`-`). Add `convert_underscores=False` to disable the automatic conversion.
 ``` python
-strange_header: Union[str, None] = Header(default=None, convert_underscores=False)
+strange_header: Annotated[Union[str, None], Header(default=None, convert_underscores=False)]
 ```
 
 ### Duplicate Headers
 Set the typehint as a List.
 ``` python
 @app.get("/items/")
-async def read_items(x_token: Union[List[str], None] = Header(default=None)):
+async def read_items(x_token: Annotated[Union[List[str], None], Header(default=None)]):
     return {"X-Token values": x_token}
 ```
 
@@ -658,7 +666,10 @@ async def create_file(
 # API Output - Response
 
 ## Response Body
-We can declare `Pydantic` model for response, just like request body. The response model is declared as a **parameter of decorator method**, instead of path operation function (to provide additional functions). It can perform field limiting.
+We can declare `Pydantic` model for response, just like request body. The response model should be declared as a **parameter of decorator method**, instead of path operation function return type (this helps to provide additional functionalities). It can perform field limiting.
+
+If you have strict type checks (e.g. using `mypy`), you can declare the function return type as `Any`.
+
 ``` python
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr  # pip install email-validator or pip install pydantic[email]
@@ -687,10 +698,58 @@ async def create_user(user: UserIn):
 
 Notice that the response body is filtered based on response model.
 
+To annotate the function type instead, we need to use inheritance.
+``` python
+class BaseUser(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: Union[str, None] = None
+
+
+class UserIn(BaseUser):
+    password: str
+
+
+@app.post("/user/")
+async def create_user(user: UserIn) -> BaseUser:
+    return user
+```
+Do note that `response_model` in decorator method has a higher priority compared to function return type.
+
+### Other Response Body Type Annotations
+1. Return a `Response` directly
+   ``` python
+   from fastapi import FastAPI, Response
+   from fastapi.response import JSONResponse, RedirectResponse
+   
+   app = FastAPI()
+
+   @app.get("/portal")
+   async def get_portal(redict: bool = False) -> Response:
+       if redict:
+           return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+       return JSONResponse(content={"message": "Here is your message"})
+   ```
+2. Return a `Response` subclass (e.g. `RedirectResponse`)
+   ``` python
+   @app.get("/portal")
+   async def get_portal() -> RedirectResponse:
+       return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+   ```
+3. Disable response model (to disable validation by FastAPI)
+   ``` python
+   @app.get("/portal", response_model=None)
+   async def get_portal() -> Union[Response, dict]:
+       if redict:
+           return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+       return content={"message": "Here is your message"}
+   ```
+
+### Response Body Customization
 `FastAPI` has a lot of field customizations which can be used in `decorator method` (from [Pydantic](https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict)):
-- `response_model_exclude_unset=True`
-- `response_model_exclude_defaults=True`
-- `response_model_exclude_none=True`
+- `response_model_exclude_unset=True` - whether fields which were not explicitly set when creating the model should be excluded from the returned dictionary
+- `response_model_exclude_defaults=True` - whether fields which are equal to their default values (whether set or otherwise) should be excluded from the returned dictionary
+- `response_model_exclude_none=True` - whether fields which are equal to `None` should be excluded from the returned dictionary
 
 One can also use the following parameters to include and exclude fields. However, it is recommended to defining multiple `Pydantic` models, instead of using these parameters.
 - `response_model_include={set of str}`
@@ -718,13 +777,14 @@ In this case, `/items/foo` will not return the default value as there are unset.
 ```
 
 ## Response Status Code
-We can specify the HTTP status code used for the response with the parameter `status_code` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (e.g. `fastapi.status.HTTP_201_CREATED`)
+We can specify the HTTP status code used for the response with the parameter `status_code` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (e.g. `fastapi.status.HTTP_201_CREATED`) or `starlette.status` object
 ``` python
 @app.post("/items/", status_code=201)
 async def create_item(name: str):
     return {"name": name}
 ```
 ![](https://i.imgur.com/2APnOiP.png)
+
 
 # Miscellaneous
 ## Typehint
