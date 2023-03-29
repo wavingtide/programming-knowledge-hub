@@ -41,11 +41,12 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [File](#file)
       - [`UploadFile`](#uploadfile)
     - [Using both Forms and Files](#using-both-forms-and-files)
-- [API Output - Response](#api-output---response)
+- [API Output](#api-output)
   - [Response Body](#response-body)
     - [Other Response Body Type Annotations](#other-response-body-type-annotations)
     - [Response Body Customization](#response-body-customization)
   - [Response Status Code](#response-status-code)
+    - [Error Handling](#error-handling)
 - [Miscellaneous](#miscellaneous)
   - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
@@ -252,6 +253,7 @@ We can set the default value of the function parameters as a `Query` or `Path` o
 We should use it with `Annotated` in type.
 ``` python
 from fastapi import FastAPI, Path, Query
+from typing import Union
 from typing_extensions import Annotated
 
 @app.get("/items/{item_id}")
@@ -533,6 +535,8 @@ Example:
 `Cookie` provides the same customizations and validations as `Query` and `Path`.
 ``` python
 from fastapi import Cookie, FastAPI
+from typing import Union
+from typing_extensions import Annotated
 
 app = FastAPI()
 
@@ -590,11 +594,12 @@ Both `Form` and `UploadFile` provides similar customizations and validations as 
 
 ``` python
 from fastapi import FastAPI, Form
+from typing_extensions import Annotated
 
 app = FastAPI()
 
 @app.post("/login/")
-async def login(username: str = Form(), password: str = Form()):
+async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
     return {"username": username}
 ```
 
@@ -607,11 +612,13 @@ With type `UploadFile`, **FastAPI** will read the file as a "spooled" file (stor
 
 ``` python
 from fastapi import FastAPI, File, UploadFile
+from typing import Union
+from typing_extensions import Annotated
 
 app = FastAPI()
 
 @app.post("/files/")
-async def create_file(file: Union[bytes, None] = File(default = None, description="A file read as bytes")):
+async def create_file(file: Annotated[Union[bytes, None], File(description="A file read as bytes")]):
     return {"file_size": len(file)}
 
 
@@ -619,17 +626,24 @@ async def create_file(file: Union[bytes, None] = File(default = None, descriptio
 async def create_upload_file(file: UploadFile):  # don't need default value File() if specify type as UploadFile
     return {"filename": file.filename}
 ```
+![](https://i.imgur.com/TT1mEYB.png)
 
 To upload multiple files
 ``` python
-async def create_files(files: List[bytes] = File(description="Multiple files as bytes")):
+async def create_files(files: Annotated[List[bytes], File(description="Multiple files as bytes")]):
     return {"file_sizes": [len(file) for file in files]}
+```
+
+``` python
+@app.post("/uploadfiles/")
+async def create_upload_files(files: Annotated[List[UploadFile], File(description="Multiple files as UploadFile")]):
+    return {"filenames": [file.filename for file in files]}
 ```
 
 #### `UploadFile`
 Attributes of `UploadFile`:
-- filename: str
-- content_type: str (e.g. image/jpeg)
+- filename: `str`
+- content_type: `str` (e.g. `image/jpeg`)
 - file: [SpooledTemporaryFile](https://docs.python.org/3/library/tempfile.html#tempfile.SpooledTemporaryFile)
 
 Async methods of `UploadFile`:
@@ -653,7 +667,9 @@ We can define files and form fields at the same time using `File` and `Form`.
 ``` python
 @app.post("/files/")
 async def create_file(
-    file: bytes = File(), fileb: UploadFile = File(), token: str = Form()
+    file: Annotated[bytes, File()], 
+    fileb: Annotated[UploadFile, File()],
+    token: Annotated[str, Form()]
 ):
     return {
         "file_size": len(file),
@@ -662,9 +678,7 @@ async def create_file(
     }
 ```
 
-
-# API Output - Response
-
+# API Output
 ## Response Body
 We can declare `Pydantic` model for response, just like request body. The response model should be declared as a **parameter of decorator method**, instead of path operation function return type (this helps to provide additional functionalities). It can perform field limiting.
 
@@ -785,6 +799,28 @@ async def create_item(name: str):
 ```
 ![](https://i.imgur.com/2APnOiP.png)
 
+
+### Error Handling
+``` python
+from fastapi import FastAPI, HTTPException
+
+app = FastAPI()
+
+items = {"foo": "The Foo Wrestlers"}
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: str):
+    if item_id not in items:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"item": items[item_id]}
+```
+
+If `item_id` is not `foo`, it will return an error 404 with a response body.
+``` shell
+{
+  "detail": "Item not found"
+}
+```
 
 # Miscellaneous
 ## Typehint
