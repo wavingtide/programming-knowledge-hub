@@ -47,6 +47,7 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [Response Body Customization](#response-body-customization)
   - [Response Status Code](#response-status-code)
     - [Error Handling](#error-handling)
+- [Dependencies](#dependencies)
 - [Miscellaneous](#miscellaneous)
   - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
@@ -820,6 +821,29 @@ If `item_id` is not `foo`, it will return an error 404 with a response body.
 {
   "detail": "Item not found"
 }
+```
+
+# Dependencies
+*Dependencies injection* - way for your code to declare things that it requires to work and use
+
+This can be useful for shared logic or resources, enforce security.
+
+We can do this in FastAPI using `Depends`.
+
+``` python
+from fastapi import Depends, FastAPI
+from typing_extensions import Annotated
+
+async def common_parameters(start: int = 0):
+    return {"start": start}
+
+@app.get("/item")
+async def read_items(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
+
+@app.get("/users/")
+async def read_users(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
 ```
 
 # Miscellaneous
