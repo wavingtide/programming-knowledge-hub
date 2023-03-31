@@ -47,6 +47,10 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
     - [Response Body Customization](#response-body-customization)
   - [Response Status Code](#response-status-code)
     - [Error Handling](#error-handling)
+      - [Customization](#customization)
+        - [Add custom header](#add-custom-header)
+        - [Add custom error](#add-custom-error)
+        - [Override the default exception handlers](#override-the-default-exception-handlers)
 - [Dependencies](#dependencies)
 - [Miscellaneous](#miscellaneous)
   - [Typehint](#typehint)
@@ -802,6 +806,7 @@ async def create_item(name: str):
 
 
 ### Error Handling
+We can raise an error in the response to notify the client that there are problems (e.g. not enough privilege, non-existent item). To return HTTP responses with errors to the client, we can use `HTTPException`.
 ``` python
 from fastapi import FastAPI, HTTPException
 
@@ -822,6 +827,57 @@ If `item_id` is not `foo`, it will return an error 404 with a response body.
   "detail": "Item not found"
 }
 ```
+
+#### Customization
+##### Add custom header
+``` python
+async def read_item_header(item_id: str):
+    if item_id not in items:
+        raise HTTPException(
+            status_code=404,
+            detail="Item not found",
+            headers={"X-Error": "There goes my error"},
+        )
+    return {"item": items[item_id]}
+```
+
+##### Add custom error
+1. Create the custom exception object inheriting from class `Exception` 
+2. Create an exception handler
+3. Raise the error in the code
+``` python
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+class NewException(Exception):
+    def __init__(self, name: str):
+        self.name = name
+
+app = FastAPI()
+
+@app.exception_handler(NewException)
+async def new_exception_handler(request: Request, exc: NewException):
+    return JSONResponse(status_code=408, content={"message": f"Problem with {exc.name}"})
+
+@app.get("/new/{name}")
+async def get_item(name: str):
+    if name == "newname":
+        raise NewException(name=name)
+    return name
+```
+
+Running `/new/newname` will return the following error with code `408`
+``` shell
+{
+  "message": "Problem with newname"
+}
+```
+
+##### Override the default exception handlers
+FastAPI has some default exception handlers with default JSON responses. These handlers can be overwritten.
+
+Example: Override `RequestValidationError`
+
 
 # Dependencies
 *Dependencies injection* - way for your code to declare things that it requires to work and use
