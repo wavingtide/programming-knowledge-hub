@@ -80,6 +80,7 @@
 │    │    └── [ubuntu](environment-setup/linux/ubuntu/)  
 │    │         └── [ubuntu_setup.sh](environment-setup/linux/ubuntu_setup.sh) (wip)  
 │    ├── [mac](environment-setup/mac/)  
+│    │    ├── [mac_setup.md](environment-setup/mac/mac_setup.md)  
 │    │    └── [mac_setup.sh](environment-setup/mac/mac_setup.sh) (e)  
 │    ├── [virtual-machine](environment-setup/virtual-machine/)  
 │    │    └── [hyper_v.md](environment-setup/virtual-machine/hyper_v.md) (e)  
@@ -198,6 +199,7 @@
 │   │   └── ubuntu
 │   │       └── ubuntu_setup.sh
 │   ├── mac
+│   │   ├── mac_setup.md
 │   │   └── mac_setup.sh
 │   ├── virtual-machine
 │   │   └── hyper_v.md

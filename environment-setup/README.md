@@ -1,6 +1,6 @@
 # Environment Setup
 
-Set up the evironments for different OS. The following OS are being written:
+Set up the evironments for different OS.
 
 .  
 ├── [linux](linux/)  
@@ -17,9 +17,11 @@ Set up the evironments for different OS. The following OS are being written:
 
 
 That might be setups that should be done through the UI.
+- Browser ([Mozilla Firefox](https://www.mozilla.org/en-US/firefox/new/), [Google Chrome](https://www.google.com/chrome/), [Microsoft Edge](https://www.microsoft.com/en-us/edge/download/), [Brave](https://brave.com/download/))
+- [WhatsApp](https://www.whatsapp.com/download)
+- [Telegram](https://desktop.telegram.org/)
 
-The list of softwares to be installed:
-- Browser (Firefox, Google Chrome)
+Some tools can be installed through shell script, the shell scripts are attached.
 - Docker
 - Git
 - Postman
