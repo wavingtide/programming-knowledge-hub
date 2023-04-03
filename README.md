@@ -85,8 +85,7 @@
 │    ├── [virtual-machine](environment-setup/virtual-machine/)  
 │    │    └── [hyper_v.md](environment-setup/virtual-machine/hyper_v.md) (e)  
 │    └── [windows](environment-setup/windows/)  
-│           ├── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
-│           └── [windows_setup.ps1](environment-setup/windows/windows_setup.ps1) (e)  
+│           └── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
 ├── [operating-system](operating-system/)  
 │    ├── [README.md](operating-system/README.md) (e)  
 │    ├── [linux_commands.md](operating-system/linux_commands.md)  
@@ -204,8 +203,7 @@
 │   ├── virtual-machine
 │   │   └── hyper_v.md
 │   └── windows
-│       ├── windows_setup.md
-│       └── windows_setup.ps1
+│       └── windows_setup.md
 ├── operating-system
 │   ├── README.md
 │   ├── linux_commands.md

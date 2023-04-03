@@ -90,6 +90,7 @@ Follow the instruction on `https://brew.sh/` to install HomeBrew
 ``` shell
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
+![](https://i.imgur.com/0JykJ5U.png)
 
 Follow the instruction on the output to add brew to the path.
 ``` shell
@@ -118,10 +119,13 @@ Additional settings
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
 
+![](https://i.imgur.com/xSNbLIe.png)
+
 Install the theme [PowerLevel10k](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k)
 ``` shell
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 ```
+![](https://i.imgur.com/i5AriRV.png)
 
 Change the `.zshrc` file `ZSH_THEME` from `robbyrussell` to `powerlevel10k/powerlevel10k`
 

@@ -23,14 +23,18 @@ That might be setups that should be done through the UI.
 - Sign in to [Microsoft Office Suite](https://www.office.com/) and install Microsoft Office
 - [Bitwarden](https://bitwarden.com/download/) as **password manager**
 - [Notion](https://www.notion.so/desktop)
+- [Slack](https://slack.com/downloads/windows)
+- [Pycharm](https://www.jetbrains.com/pycharm/download/#section=windows)
+- [Discord](https://discord.com/download)
 - [VS Code](https://code.visualstudio.com/download)
   - Open editor commands (`Ctrl + Shift + P`) and run `Install 'code' command in PATH`
   - Install additional extensions
     - Appearance
       - Shades of Purple
       - Material Icon Theme
-    - Coding
+    - Coding language
       - Python
+      - C/C++
     - Formatter
       - Prettier - Code formatter
     - Web Dev
@@ -82,11 +86,8 @@ Some tools can be installed through shell script.
   ``` shell
   nvm install --lts
   ```
-- [Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim)
+- [Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim), you can get the release file from their [Github release](https://github.com/neovim/neovim/releases). For Windows, search for `nvim-win64.msi`, download and run it.
   ``` shell
-  # for windows
-  winget install Neovim.Neovim
-
   # for macbook
   brew install neovim
   ```
@@ -94,8 +95,10 @@ Some tools can be installed through shell script.
   ``` shell
   mkdir -p ~/.config/nvim
   cd ~/.config/nvim
-  
+  nvim init.lua
   ```
+  And copy the content from `init.lua` from the Github repo to the file. Next time, when you run `nvim`, it will complete the set up.
+  ![](https://i.imgur.com/F3xidu1.png)
 - Python
 
 
@@ -117,16 +120,9 @@ plugins=(
 )
 ```
 
-Additional
-- [Neovim](https://neovim.io/)
-
-
-Softwares specific to Windows:
-- WSL
 
 Optional
 - Obsidian
-- Miniconda
 
 
 
