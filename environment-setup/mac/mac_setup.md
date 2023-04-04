@@ -17,7 +17,7 @@ Steps to set up a MacBook for programming usage.
   - [Install HomeBrew](#install-homebrew)
   - [Install iTerm2](#install-iterm2)
   - [Install Oh My Zsh](#install-oh-my-zsh)
-  - [Connect to Github through SSH](#connect-to-github-through-ssh)
+- [Programming Library](#programming-library)
 - [Other Applications](#other-applications)
 
 
@@ -155,31 +155,11 @@ If you are unhappy with the configuration or want to change the nerd font, you c
 p10k configure
 ```
 
-## Connect to Github through SSH
-1. Generate a new SSH key
-   ``` shell
-   ssh-keygen -t ed25519 -C "your_email@example.com"
-   ```
-2. Start a SSH agent
-   ``` shell
-   ssh-keygen -t ed25519 -C "your_email@example.com"
-   ```
-3. Run `touch ~/.ssh/config` and `nano ~/.ssh/config` to configurate the ssh configuration, add the following. If you are using passphrase, add `UseKeychain yes`
-   ``` shell
-   Host github.com
-     AddKeysToAgent yes
-     IdentityFile ~/.ssh/id_ed25519
-   ```
-4. Add the SSH private key to the ssh-agent. Add option `--apple-use-keychain` if you are using passphrase
-   ``` shell
-   ssh-add ~/.ssh/id_ed25519
-   ```
-5. Copy the key
-   ``` shell
-   pbcopy < ~/.ssh/id_ed25519.pub
-   ```
-6. Go to Github `Settings -> SSH and GPG keys`, click *New SSH key* and paste the key
-7. Run `ssh -T git@github.com` to test the connection
+# Programming Library
+- `libyaml`
+  ``` shell
+  brew install libyaml
+  ```
 
 
 # Other Applications
