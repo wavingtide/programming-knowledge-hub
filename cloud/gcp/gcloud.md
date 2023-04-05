@@ -9,6 +9,8 @@
   - [Linux](#linux)
   - [MacOS](#macos)
 - [Initilization](#initilization)
+- [Basic Command](#basic-command)
+- [Google Compute Engine](#google-compute-engine)
 
 
 # Installation
@@ -113,3 +115,45 @@ gcloud auth application-default login
 ```
 
 ![](https://i.imgur.com/m4EGxjs.png)
+
+
+# Basic Command
+List all the configuration
+``` shell
+gcloud config list
+```
+![](https://i.imgur.com/mKxTXBR.png)
+
+Change a config
+``` shell
+gcloud config set project PROJECT_ID
+gcloud config set compute/zone ZONE_NAME
+```
+
+List all authentication
+``` shell
+gcloud auth list
+```
+
+List all available projects
+``` shell
+gcloud projects list
+```
+
+
+# Google Compute Engine
+List all available VM
+``` shell
+gcloud compute instances list
+```
+
+Set up the SSH
+``` shell
+gcloud compute ssh <instance-name>
+```
+This will automatically generate the SSH key and propagate to the instance if it is not yet exist.
+
+Be default, it will use the setting in your gcloud config. You might need to specify more information if the setting didn't match.
+``` shell
+gcloud compute ssh --project=<project-id> --zone=<zone> <instance-name>
+```

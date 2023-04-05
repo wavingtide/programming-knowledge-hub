@@ -4,10 +4,11 @@
 Set up the evironments for different OS.
 .  
 ├── [linux](linux/)  
-│    └── [README.md](linux/README.md)  
+│    ├── [README.md](linux/README.md)  
 │    └── [ubuntu](linux/ubuntu/)  
 │         └── [ubuntu_setup.sh](linux/ubuntu_setup.sh)  
 ├── [mac](mac/)  
+│    ├── [mac_setup.md](mac/mac_setup.md)  
 │    └── [mac_setup.sh](mac/mac_setup.sh)  
 ├── [virtual-machine](virtual-machine/)  
 │    └── [hyper_v.md](virtual-machine/hyper_v.md)  

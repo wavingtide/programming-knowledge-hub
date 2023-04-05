@@ -34,6 +34,7 @@ Follow the steps in [environment-setup](../README.md)
 - Also, drag the "Code" folder to sidebar
 
 # Settings
+*(This is based on Macbook Air with M2 chip and MacOS Venture 13.3, different MacOS version might store the settings at different places, you can always use Spotlight Search to find what you want)*
 ## Appearance
 - Go to *Appearance*, choose *Dark Mode* for Appearance, choose *Small* for Sidebar icon size
 - Go to *Desktop & Dock*, decrease the size and increase magnification, uncheck *Show recent applications in Dock* and check *Minimise windows into application icon*. 
@@ -51,7 +52,6 @@ Follow the steps in [environment-setup](../README.md)
 Go to *Siri & Spotlight*, uncheck *Contacts*, *Events & Reminders*, *Mail & Messages*, *Siri Suggestions*
 
 ## Configure security
-*(This is based on Macbook Air with M2 chip and MacOS Venture 13.3, different MacOS version might store the settings at different places, you can always use Spotlight Search to find what you want)*
 - Create another admin user account (in case the primary account get hacked)
 - Safari
   - Go to *Safari -> Settings... -> General*, uncheck the option *Open "safe" files after downloading* 
@@ -164,7 +164,6 @@ p10k configure
 
 # Other Applications
 - [Clean My Mac](https://cleanmymac.com/)
-- Paste - Clipboard Manager
 - iStat Menus (cost $14.98) - see the stat of the laptop
 - [Alfred](https://www.alfredapp.com/) - more powerful spotlight
 - [Rectangle](https://rectangleapp.com/) - move and resize windows using keyboard shortcuts
