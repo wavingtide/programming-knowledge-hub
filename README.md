@@ -76,7 +76,7 @@
 ├── [environment-setup](environment-setup/)  
 │    ├── [README.md](environment-setup/README.md)  
 │    ├── [linux](environment-setup/linux/)  
-│    │    └── [README.md](environment-setup/linux/README.md) (wip)  
+│    │    ├── [README.md](environment-setup/linux/README.md) (wip)  
 │    │    └── [ubuntu](environment-setup/linux/ubuntu/)  
 │    │         └── [ubuntu_setup.sh](environment-setup/linux/ubuntu_setup.sh) (wip)  
 │    ├── [mac](environment-setup/mac/)  
@@ -111,8 +111,8 @@
 │    └── [github.md](version-control-system/github.md) (wip)  
 └── [web-framework](web-framework/)  
        ├── [README.md](web-framework/README.md) (wip)  
-       └── [fastapi](web-framework/fastapi/)  
-             └── [fastapi.md](web-framework/fastapi/fastapi.md) (wip)  
+       └── [fastapi.md](web-framework/fastapi.md) (wip)   
+
 ### Status
 - e - empty
 - wip - work in progress
@@ -229,6 +229,5 @@
 │   └── github.md
 └── web-framework
     ├── README.md
-    └── fastapi
-        └── fastapi.md
+    └── fastapi.md
 ```
