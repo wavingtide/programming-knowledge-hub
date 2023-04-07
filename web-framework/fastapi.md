@@ -45,14 +45,19 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
   - [Response Body](#response-body)
     - [Other Response Body Type Annotations](#other-response-body-type-annotations)
     - [Response Body Customization](#response-body-customization)
+    - [Related Model](#related-model)
   - [Response Status Code](#response-status-code)
     - [Error Handling](#error-handling)
       - [Customization](#customization)
         - [Add custom header](#add-custom-header)
         - [Add custom error](#add-custom-error)
         - [Override the default exception handlers](#override-the-default-exception-handlers)
-- [Dependencies](#dependencies)
+- [Other API Operations](#other-api-operations)
+  - [Endpoint Level Configuration](#endpoint-level-configuration)
+  - [`PUT` and `PATCH` Operations](#put-and-patch-operations)
+  - [Dependencies](#dependencies)
 - [Miscellaneous](#miscellaneous)
+  - [JSON Compatible Encoder](#json-compatible-encoder)
   - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
     - [Order Function Parameters as We Need](#order-function-parameters-as-we-need)
@@ -61,7 +66,8 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
 - HTTP Methods/Operations
   - `POST`: to create data
   - `GET`: to read data
-  - `PUT`: to update data
+  - `PUT`: to update data (idempotent)
+  - `PATCH`: to update data partially
   - `DELETE`: to delete data
 - Path / endpoint / route
 - Schema
@@ -795,6 +801,41 @@ In this case, `/items/foo` will not return the default value as there are unset.
 {"name": "Foo", "price": 26.8}
 ```
 
+### Related Model
+Related model (e.g. input with password, stored in database encypted password, output without password). We can use inheritance to reduce repeated code. When creating a new object using the Pydantic model class, extra input will be ignored.
+
+``` python
+from typing import Union
+
+from fastapi import FastAPI
+from pydantic import BaseModel, EmailStr
+
+app = FastAPI()
+
+class UserBase(BaseModel):
+    username: str
+
+class UserIn(UserBase):
+    password: str
+
+class UserOut(UserBase):
+    pass
+
+
+class UserInDB(UserBase):
+    hashed_password: str
+
+def fake_save_user(user_in: UserIn):
+    hashed_password = user_in.password + '123'
+    user_in_db = UserInDB(**user_in.dict(), hashed_password=hashed_password)
+    return user_in_db
+
+@app.post("/user/", response_model=UserOut)
+async def create_user(user_in: UserIn):
+    user_saved = fake_save_user(user_in)
+    return user_saved
+```
+
 ## Response Status Code
 We can specify the HTTP status code used for the response with the parameter `status_code` in the decorator. It can receive numeric status code, [http.HTTPStatus](https://docs.python.org/3/library/http.html#http.HTTPStatus) object or `fastapi.status` object (e.g. `fastapi.status.HTTP_201_CREATED`) or `starlette.status` object
 ``` python
@@ -928,10 +969,67 @@ async def custom_http_exception_handler(request, exc):
     return await http_exception_handler(requst, exc)
 ```
 
-Do note that we are handling `HTTPException` from Starlette instead of `HTTPException` from FastAPI. This is because both `HTTPException` is different. Handling Starlette's `HTTPException`, so that there are better support from Starlette.
+Do note that we are handling `HTTPException` from Starlette instead of `HTTPException` from FastAPI. The `HTTPException` from FastAPI and Starlette are different. Handling Starlette's `HTTPException` enables better support from Starlette.
 
 
-# Dependencies
+
+# Other API Operations
+## Endpoint Level Configuration
+The path operation decorator accepts the following arguments
+- `status_code`
+- `tags` (can be used by Enums)
+- `summary`
+- `description` (can be replaced with docstring, FastAPI will automatically detect it)
+- `response_description` (default: *Successful response*)
+- `deprecated`
+
+``` python
+from enum import Enum
+from fastapi import FastAPI, status
+from pydantic import BaseModel
+from typing import Union
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = None
+
+class Tags(Enum):
+    items = "items"
+    users = "users"
+
+@app.post(
+    "/items", 
+    response_model=Item, 
+    status_code=status.HTTP_201_CREATED, 
+    tags=[Tags.items],
+    summary="Create an item",
+    deprecated=False,
+    response_description="Item created")
+async def create_item(item: Item):
+    """
+    Create an item with these attributes
+    - name
+    - description
+    """
+    return item
+```
+![](https://i.imgur.com/pgDc5Lf.png)
+
+
+## `PUT` and `PATCH` Operations
+`PUT` creates a new resource or replaces a representation, `PATCH` applies partial modifications to a resource.
+``` python
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    update_item_encoded = jsonable_encoder(item)
+    items[item_id] = update_item_encoded
+    return update_item_encoded
+```
+
+
+## Dependencies
 *Dependencies injection* - way for your code to declare things that it requires to work and use
 
 This can be useful for shared logic or resources, enforce security.
@@ -955,6 +1053,9 @@ async def read_users(commons: Annotated[dict, Depends(common_parameters)]):
 ```
 
 # Miscellaneous
+## JSON Compatible Encoder
+FastAPI provides a `jsonable_encoder()` function to convert a json-like object (e.g. Pydantic model) to JSON-compatible dictionary. (e.g. converting `datetime` object to `str`). It is used by FastAPI internally to convert data.
+
 ## Typehint
 Different Python versions have different typehinting mechanism, as Python improve their typehinting mechanism.
 
