@@ -54,13 +54,21 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
         - [Override the default exception handlers](#override-the-default-exception-handlers)
 - [Other API Operations](#other-api-operations)
   - [Endpoint Level Configuration](#endpoint-level-configuration)
-  - [`PUT` and `PATCH` Operations](#put-and-patch-operations)
+  - [API Level Configuration](#api-level-configuration)
+  - [`PUT` and `PATCH` HTTP Operations](#put-and-patch-http-operations)
   - [Dependencies](#dependencies)
+  - [Middleware](#middleware)
+  - [`APIRouter`](#apirouter)
+  - [Testing](#testing)
+  - [Background task](#background-task)
+  - [Static Files](#static-files)
+  - [Cross-Origin Resource Sharing (CORS)](#cross-origin-resource-sharing-cors)
 - [Miscellaneous](#miscellaneous)
   - [JSON Compatible Encoder](#json-compatible-encoder)
   - [Typehint](#typehint)
   - [Python Tricks](#python-tricks)
     - [Order Function Parameters as We Need](#order-function-parameters-as-we-need)
+  - [Useful Resources](#useful-resources)
 
 # API Concepts
 - HTTP Methods/Operations
@@ -568,9 +576,10 @@ async def read_items(user_agent: Annotated[Union[str, None], Header(default=None
     return {"User-Agent": user_agent}
 ```
 Characteristics of headers:
-- Usually standard headers are separated by a "hyphen" character (`-`).
+- Usually standard headers are separated by a "hyphen" character (`-`)
 - Case-insensitive
 - Some HTTP proxies and server disallow the usage of headers with underscores
+- Custom header can be added using the `X-` prefix
 
 By default, `Header` will convert parameter names characters from underscore (`_`) to hyphen(`-`). Add `convert_underscores=False` to disable the automatic conversion.
 ``` python
@@ -592,7 +601,7 @@ X-Token: bar
 ```
 
 ## Form Data and Request Files
-*Requirements: `pip install python-multipart`*  
+*Requirements: `pip install python-multipart`* (come with default fastapi installation)  
 
 Data from forms is normally encoded using media type `application/x-www-form-urlencoded` when it doesn't include file, and encoded as `multipart/form-data` when the form include file.  
 
@@ -1018,15 +1027,102 @@ async def create_item(item: Item):
 ![](https://i.imgur.com/pgDc5Lf.png)
 
 
-## `PUT` and `PATCH` Operations
-`PUT` creates a new resource or replaces a representation, `PATCH` applies partial modifications to a resource.
+## API Level Configuration
+`FastAPI` accepts the following arguments
+- `title`
+- `description`
+- `version`
+- `term_of_service`
+- `contact`
+- `license_info`
+- `openapi_tags` - to create metadata for tags
+- `openapi_url` (e.g. `/api/v1/openapi.json`, `None`)
+- `doc_url`
+- `redoc_url`
+
 ``` python
+from fastapi import FastAPI
+
+
+description = """
+# Description
+
+Endpoint: users, items
+"""
+
+app = FastAPI(
+    title="A FastAPI App",
+    description=description,
+    version="0.0.1",
+    term_of_service="htttps://example.com/terms",
+    contact={
+        "name": "Bob",
+        "url": "https://example.com/contact",
+        "email": "bob@example.com"
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+)
+```
+Add metadata for tags
+``` python
+tags_metadata = [
+    {
+        "name": "users",
+        "description": "Operations with users. The **login** logic is also here.",
+    },
+    {
+        "name": "items",
+        "description": "Manage items. So _fancy_ they have their own docs.",
+        "externalDocs": {
+            "description": "Items external docs",
+            "url": "https://fastapi.tiangolo.com/",
+        },
+    },
+]
+
+app = FastAPI(openapi_tags=tags_metadata)
+
+@app.get("/users/", tags=["users"])
+async def get_users():
+    return [{"name": "Harry"}, {"name": "Ron"}]
+
+
+@app.get("/items/", tags=["items"])
+async def get_items():
+    return [{"name": "wand"}, {"name": "flying broom"}]
+```
+
+![](https://i.imgur.com/wgPWjS0.png)
+
+
+## `PUT` and `PATCH` HTTP Operations
+`PUT` creates a new resource or replaces a representation, `PATCH` applies partial modifications to a resource. For example, they can be used to update a database.
+``` python
+items = {"foo": {"name": "Foo"}}
+
 @app.put("/items/{item_id}", response_model=Item)
 async def update_item(item_id: str, item: Item):
     update_item_encoded = jsonable_encoder(item)
     items[item_id] = update_item_encoded
     return update_item_encoded
 ```
+
+As `PATCH` is less known, many people use `PUT` even for partial update. Both will work, we need to exclude default input value (if there are any) and only update the user input value. `exclude_unset` can be useful for this.
+``` python
+@app.patch("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    old_item = item[item_id]
+    old_item_model = Item(**old_item)
+    update_data = item.dict(exclude_unset=True)
+    updated_item = old_item_model.copy(update=update_data)
+    items[item_id] = jsonable_encoder(update_item)
+    return update_item
+```
+
+We use Pydantic model `copy()` with `update` parameter to update the data.
 
 
 ## Dependencies
@@ -1051,6 +1147,202 @@ async def read_items(commons: Annotated[dict, Depends(common_parameters)]):
 async def read_users(commons: Annotated[dict, Depends(common_parameters)]):
     return commons
 ```
+
+Dependencies are executed at the following order (router dependencies -> path decorator dependencies -> Normal parameter dependencies)
+
+## Middleware
+A *middleware* is a functions that works with every **request before it is processed** by any specific path operation, and with every **response before returning it**.
+
+A middleware can be created using decorator `@app.middleware("http")` for function which accepts the `Request` and a function `call_next`, which call the path operation. An example is to calculate the time taken to run a request.
+``` python
+import time
+
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+@app.middleware
+async def add_process_time_header(requesr: Request, call_next):
+    start_time = time.time()
+    response = await call_next(response)
+    response.headers["X-Process-Time"] = str(time.time() - start_time)
+    return response
+```
+
+Note: exit code of dependencies with `yield` will run after middleware, background task will be run after all middleware
+
+## `APIRouter`
+As the application get bigger, we might want to separate the path operations into module (e.g. users, items).
+
+We can use `APIRouter` instead of `FastAPI` to declare the path operations. We can add additional arguments to the `APIRouter`. E.g. in the file `app/routers/users.py`
+``` python
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+@router.get("/users")
+async def read_users():
+    return "Rick"
+```
+
+In another file `app/routers/items.py`
+``` python
+from fastapi import APIRouter
+
+router = APIRouter(
+    prefix="/items",
+    tags=["items"],
+    dependencies=[Depends(get_token_header)],
+    response={404: {"description": "Not found"}}
+)
+
+@router.get("/items", tag=["custom"])
+async def read_items():
+    return "Potato"
+```
+
+After that, in `app/main.py`, use `app.include_router()` to include the router to the API.
+``` python
+from fastapi import Depends, FastAPI
+from app.routers import items, users
+
+app = FastAPI()
+
+app.include_router(items.router)
+app.include_router(users.router)
+```
+
+We can specify the router attributes in `app.include_router` instead of `APIRouter`. This can be helpful when we cannot modify the `APIRouter` file directly.
+``` python
+app.include_router(
+    admin.router,
+    prefix="/admin,
+    tag=["admin"]
+    )
+```
+
+A router can also be included multiple times with different prefix (e.g. when having different API versions). `APIRouter` can also be included in another `APIRouter`.
+
+## Testing
+*Requirements: `pip install httpx`* (come with default fastapi installation) 
+
+FastAPI uses [pytest](https://docs.pytest.org/en/latest/).
+
+Step:
+1. Create a `TestClient` by passing the FastAPI application to it. The syntax of `TestClient` is similar to Requests
+2. Create functions with name starting with `test_`, use `assert` to test
+``` python
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+app = FastAPI()
+
+users = {"foo": {"name": "Foo"}}
+
+class User(BaseModel):
+    name: str
+
+@app.get("/")
+async def read_main():
+    return {"message": "Hello World"}
+
+@app.post("/users")
+async def add_user(user: User):
+    users[user.id] = user
+    return user
+
+client = TestClient(app)
+
+def test_read_main():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello World"}
+
+def test_add_user():
+    response = client.post("/users", json={"name": "Bob"})
+    assert response.json() == {"name": "Bob"}
+```
+
+Noted that we are not using `async` for testing. Usually, test will be separated from the application code.
+
+
+## Background task
+You can define background tasks (e.g. send email, slow processing data) to be run after returning a response using `BackgroundTasks` and `add_task`.
+
+``` python
+from fastapi import BackgroundTasks, FastAPI
+
+app = FastAPI()
+
+def write_notification(email: str, message=""):
+    with open("log.txt", mode="w") as email_file:
+        email_file.write(f"{email}: {message}")
+
+@app.post("/send-notification/{email}")
+async def send_notification(email: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(write_notification, email, message="some notification")
+    return {"Message": "Notification sent in the background"}
+```
+
+Background tasks can also be added to the dependency function.
+
+For heavy background task, consider using [Celery](https://docs.celeryq.dev/en/stable/).
+
+
+## Static Files
+We can serve static files automatically from a directory using `StaticFiles`. The OpenAPI and docs will not include anything from the mounted application.
+
+``` python
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+```
+
+
+## Cross-Origin Resource Sharing (CORS)
+*Cross-Origin Resource Sharing (CORS)* is a HTTP-header based mechanism that allows a server to indicate any origins other than its own from where a browser should permit loading resources. E.g. a frontend (`https://domain-a.com`) running in a browser has JavaScript code that communicate with a backend (`https://domain-b.com`) with a different "origin" than the frontend.
+
+An *origin* is a combination of protocol (`http`, `https`), domain and port. E.g. `https://localhost`.
+
+Steps
+1. Frontend send an HTTP `OPTIONS` request to the backend.
+2. Backend has a list of "allowed origin", if the origin of frontend is in the list, backend sends the appropriate headers authorizing the communication.
+3. Javascript in the frontend send its request to the backend.
+
+CORS can be configured using `add_middleware` and `CORSMiddleware`.
+``` python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+origins = ["https://localhost", "https://localhost:8000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # ["*"]
+    allow_methods=["*"],  # Default: ["GET"]
+    allow_headers=["*"]   # Default: []  (Accept, Accpe-Language, Content-Language, Content-Type are always allowed)
+    # allow_origin_regex="https://.*\.example\.org",
+    # allow_credentials=True  # Default: False
+    # expose_headers=[]  # Default: []
+    # max_age=600  # Default: 600 (max time to cache CORS response)
+)
+
+@app.get("/")
+async def main():
+    return {"message": "Hello World"}
+```
+
+CORS middleware response to 2 types of HTTP request
+- **Simple request** - request with `Origin` header
+- **CORS preflight requests** - request of method `OPTION` with `Origin` and `Access-Control-Request-Method` headers
+
+For more in-depth explanation of CORS, visit [Mozilla CORS documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
 
 # Miscellaneous
 ## JSON Compatible Encoder
@@ -1082,3 +1374,6 @@ Example of importing `Annotated`:
 def print(*, fruit: str='apple', vege: str):
     pass
 ```
+
+## Useful Resources
+- [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP)
