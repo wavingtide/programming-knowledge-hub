@@ -71,6 +71,7 @@ That might be setups that should be done through the UI.
     - Markdown
       - Markdown All in One
       - markdownlint
+      - Markdown Preview Mermaid Support
     - Devops
       - Docker
       - YAML

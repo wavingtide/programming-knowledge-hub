@@ -40,6 +40,11 @@ Add it to PATH.
 echo 'export PATH=$PATH:$HOME/.tfenv/bin' >> ~/.bashrc
 ```
 
+Usage
+``` shell
+tfenv install latest
+```
+
 
 # Core Workflow
 - Write - Define infrastructure in configuration file

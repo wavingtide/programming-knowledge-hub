@@ -1,5 +1,9 @@
 # Windows Setup
 
+# File Explorer
+Go to meatballs menu -> Options -> View, uncheck *Hide extensions for known file types*
+
+
 # Chocolatey
 [Chocolatey](https://chocolatey.org/install#individual) is an established package manager for Windows.
 

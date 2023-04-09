@@ -47,6 +47,7 @@ Follow the steps in [environment-setup](../README.md)
 - Right click on the desktop, go to *Show View Options*, select *Snap to Grid* for *Sort By*
   - Right click on the desktop, choose *Use Stacks*
 - Remove redundant apps from Dock
+- Go to *Profiles -> Windows*, update *Columns* from 80 to 150, update *Row* from 25 to 100
 
 ## Customize Spotlight
 Go to *Siri & Spotlight*, uncheck *Contacts*, *Events & Reminders*, *Mail & Messages*, *Siri Suggestions*

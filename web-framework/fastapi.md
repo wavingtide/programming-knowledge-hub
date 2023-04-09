@@ -1126,11 +1126,11 @@ We use Pydantic model `copy()` with `update` parameter to update the data.
 
 
 ## Dependencies
-*Dependencies injection* - way for your code to declare things that it requires to work and use
+*Dependencies injection* - a way for your code to declare things that it requires to work
 
 This can be useful for shared logic or resources, enforce security.
 
-We can do this in FastAPI using `Depends`.
+We can do this in FastAPI using `Depends()` and pass in the dependency/dependable callable (function/class).
 
 ``` python
 from fastapi import Depends, FastAPI
@@ -1139,12 +1139,14 @@ from typing_extensions import Annotated
 async def common_parameters(start: int = 0):
     return {"start": start}
 
+CommonsDep = Annotated[dict, Depends(common_parameters)]
+
 @app.get("/item")
-async def read_items(commons: Annotated[dict, Depends(common_parameters)]):
+async def read_items(commons: CommonsDep):
     return commons
 
 @app.get("/users/")
-async def read_users(commons: Annotated[dict, Depends(common_parameters)]):
+async def read_users(commons: CommonsDep):
     return commons
 ```
 

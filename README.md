@@ -72,7 +72,7 @@
 │    │    ├── [docker.md](devops/container/docker.md)  
 │    │    ├── [dockerfile-writing.md](devops/container/dockerfile-writing.md)  
 │    │    └── [kubernetes.md](devops/container/kubernetes.md) (wip)  
-│    └── [time-series](devops/terraform.md) (e)  
+│    └── [terraform](devops/terraform.md) (e)  
 ├── [environment-setup](environment-setup/)  
 │    ├── [README.md](environment-setup/README.md)  
 │    ├── [linux](environment-setup/linux/)  
