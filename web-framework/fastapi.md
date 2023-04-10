@@ -1150,6 +1150,27 @@ async def read_users(commons: CommonsDep):
     return commons
 ```
 
+Using class as dependency
+``` python
+class Cat:
+    def __init__(self, name: str, sound: str):
+        self.name = name
+        self.sound = sound
+
+@app.get("/cats/")
+async def read_cats(cat: Annotated[Cat, Depends(Cat)]):
+    response = {}
+    if cat.sound:
+        response.update({"sound": cat.sound})
+    return response
+```
+
+Instead of writing `cat: Annotated[Cat, Depends(Cat)]`, we can write it as `cat: Annotated[Any, Depends(Cat)]` (not encouraged) or `cat: Annotated[Cat, Depends()]`.
+
+We can create dependencies that have sub-dependencies, as many levels as we want.
+
+`Depends` accepts argument `use_cache`, we can set it as `False` to avoid cache if we are using a dependency multiple time.
+
 Dependencies are executed at the following order (router dependencies -> path decorator dependencies -> Normal parameter dependencies)
 
 ## Middleware

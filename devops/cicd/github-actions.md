@@ -119,3 +119,31 @@ steps:
     pip install pytest-cov
     pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
 ```
+
+# Deployment
+
+## Environment
+One can configure environments with protection rules and secrets.
+
+![](https://i.imgur.com/UzqfuoF.png)
+
+To use an environment in Github Actions, add `environment` to the `jobs`
+``` yaml
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: deploy
+        # ...deployment-specific steps
+```
+
+## Security hardening with OpenID Connect
+OpenID Connect allows your workflows to exchange short-lived tokens directly from your cloud provider.
