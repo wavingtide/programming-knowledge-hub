@@ -102,6 +102,8 @@
 │           ├── [pipx.md](programming-language-tools/python/pipx.md)  
 │           ├── [poetry.md](programming-language-tools/python/poetry.md)  
 │           └── [pre-commit.md](programming-language-tools/python/pre-commit.md) (wip)  
+├── [security](security/)  
+│    └── [README.md](security/README.md) (e)  
 ├── [software-engineering-philosophy](software-engineering-philosophy/)  
 │    ├── [design-document](software-engineering-philosophy/design-document.md) (e)  
 │    └── [design-principle.md](software-engineering-philosophy/design-principle.md) (wip)  
@@ -220,6 +222,8 @@
 │       ├── pipx.md
 │       ├── poetry.md
 │       └── pre-commit.md
+├── security
+│   └── README.md
 ├── software-engineering-philosophy
 │   ├── design-document.md
 │   └── design-principle.md

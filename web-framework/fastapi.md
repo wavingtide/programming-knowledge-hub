@@ -57,11 +57,14 @@ Refer to [documentation](https://fastapi.tiangolo.com/)
   - [API Level Configuration](#api-level-configuration)
   - [`PUT` and `PATCH` HTTP Operations](#put-and-patch-http-operations)
   - [Dependencies](#dependencies)
+    - [Dependencies with yield](#dependencies-with-yield)
   - [Middleware](#middleware)
   - [`APIRouter`](#apirouter)
   - [Testing](#testing)
   - [Background task](#background-task)
   - [Static Files](#static-files)
+  - [Security](#security)
+    - [OAuth](#oauth)
   - [Cross-Origin Resource Sharing (CORS)](#cross-origin-resource-sharing-cors)
 - [Miscellaneous](#miscellaneous)
   - [JSON Compatible Encoder](#json-compatible-encoder)
@@ -1164,14 +1167,60 @@ async def read_cats(cat: Annotated[Cat, Depends(Cat)]):
         response.update({"sound": cat.sound})
     return response
 ```
-
 Instead of writing `cat: Annotated[Cat, Depends(Cat)]`, we can write it as `cat: Annotated[Any, Depends(Cat)]` (not encouraged) or `cat: Annotated[Cat, Depends()]`.
+
+We can put dependency in path operation.
+``` python
+@app.get("/cat", dependencies=[Depend(Cat), Depend(Dog)])
+async def read_cat_and_dog():
+    return "There are cats and dogs"
+```
+
+Or add it directly to a `FastAPI` application.
+``` python
+app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
+```
 
 We can create dependencies that have sub-dependencies, as many levels as we want.
 
 `Depends` accepts argument `use_cache`, we can set it as `False` to avoid cache if we are using a dependency multiple time.
 
 Dependencies are executed at the following order (router dependencies -> path decorator dependencies -> Normal parameter dependencies)
+
+### Dependencies with yield
+FastAPI supports dependencies that do some extra steps after finishing (e.g. exit, close database). Add `yield` to a dependencies function to achieve that. 
+
+The code before `yield` statement will be run before sending a response, `yield` is what is injected into the path operations, while the code after `yield` will be run after the response have been delivered (background task).
+
+Using `try` allows us to catch any exception during the request and handle the exit steps properly.
+``` python
+async def get_db():
+    db = DBSession()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+As the code after `yield` runs after the response have been delivered, it is not able to raise request-related error such as `HTTPException`.
+
+You can also create custom context manager object and use it as FastAPI dependency.
+``` python
+class MySuperContextManager:
+    def __init__(self):
+        self.db = DBSession()
+
+    def __enter__(self):
+        return self.db
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.db.close()
+
+
+async def get_db():
+    with MySuperContextManager() as db:
+        yield db
+```
 
 ## Middleware
 A *middleware* is a functions that works with every **request before it is processed** by any specific path operation, and with every **response before returning it**.
@@ -1322,6 +1371,29 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+```
+
+## Security
+OpenAPI define the following security schema.
+- `apiKey` (from: query parameter, header, cookie)
+- `http` (`bearer`, HTTP basic authentication, HTTP Digest)
+- `oauth2` (called "flows", `implicit`, `clientCredentials`, `authorizationCode`, `password`)
+- `openIdConnect`
+
+### OAuth
+*Requirements: `pip install python-multipart`* (OAuth use form data for sending `username` and `password`)
+``` python
+from fastapi import Depends, FastAPI
+from fastapi.security import OAuth2PasswordBearer
+from typing_extensions import Annotated
+
+app = FastAPI()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.get("/items/")
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    return {"token": token}
 ```
 
 
