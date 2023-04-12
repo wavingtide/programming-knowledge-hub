@@ -1382,6 +1382,12 @@ OpenAPI define the following security schema.
 
 ### OAuth
 *Requirements: `pip install python-multipart`* (OAuth use form data for sending `username` and `password`)
+
+Example of using `OAuth2PasswordBearer` for OAuth password flow:
+
+Workflow:
+1. The user type the `username` and `password`, which will be sent to token URL to generate a token
+2. The token will be sent as a header `Authorization` with a value of `Bearer` plus the token
 ``` python
 from fastapi import Depends, FastAPI
 from fastapi.security import OAuth2PasswordBearer
@@ -1389,10 +1395,10 @@ from typing_extensions import Annotated
 
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # 'token' refer to relative URL
 
 @app.get("/items/")
-async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):  #oauth2_scheme is a callable
     return {"token": token}
 ```
 

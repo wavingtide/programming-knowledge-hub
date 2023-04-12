@@ -11,6 +11,7 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
   - [Miscellaneous](#miscellaneous)
 - [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
+- [State](#state)
 
 
 # Installation
@@ -123,3 +124,8 @@ To remove the resource.
 ``` shell
 terraform destroy
 ```
+
+# State
+State is the status of the managed infrastructure and configuration. By default, it is stored in a local file called `terraform.tfstate`. 
+
+Terraform uses state to determine which changes to make to your infrastructure. Prior to any operation, Terraform does a refresh to update the state with real infrastructure.
