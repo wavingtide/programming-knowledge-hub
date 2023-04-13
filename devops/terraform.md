@@ -12,6 +12,8 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
 - [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
 - [State](#state)
+  - [Backend](#backend)
+  - [Workspace](#workspace)
 
 
 # Installation
@@ -129,3 +131,11 @@ terraform destroy
 State is the status of the managed infrastructure and configuration. By default, it is stored in a local file called `terraform.tfstate`. 
 
 Terraform uses state to determine which changes to make to your infrastructure. Prior to any operation, Terraform does a refresh to update the state with real infrastructure.
+
+## Backend
+Backend are responsible for storing state and providing an API for state locking.
+
+## Workspace
+Terraform starts with a single workspace called `default`.
+
+The current workspace can be used using `${teraform.workspace}`.

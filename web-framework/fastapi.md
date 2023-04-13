@@ -1402,6 +1402,8 @@ async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):  #oauth2_sc
     return {"token": token}
 ```
 
+Library: [`python-jose`](https://github.com/mpdavis/python-jose), `passlib`
+
 
 ## Cross-Origin Resource Sharing (CORS)
 *Cross-Origin Resource Sharing (CORS)* is a HTTP-header based mechanism that allows a server to indicate any origins other than its own from where a browser should permit loading resources. E.g. a frontend (`https://domain-a.com`) running in a browser has JavaScript code that communicate with a backend (`https://domain-b.com`) with a different "origin" than the frontend.
