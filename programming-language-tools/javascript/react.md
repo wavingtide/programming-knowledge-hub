@@ -12,6 +12,9 @@ React is a JavaScript library for building user interfaces. It can be added into
 - [Main Concepts](#main-concepts)
   - [Components](#components)
   - [Markup and Style](#markup-and-style)
+  - [State and Event Handler](#state-and-event-handler)
+  - [Props](#props)
+- [Normal Workflow](#normal-workflow)
 
 
 # Main Concepts
@@ -26,7 +29,7 @@ function MyButton() {
   );
 }
 ```
-It can then be used in another components. Notice that the first letter is capital.
+It can then be used in another components. Notice that the first letter of React component should be capital.
 ``` javascript
 export default function MyApp() {
   return (
@@ -66,3 +69,37 @@ Then write CSS rules in a separate CSS file.
 ```
 
 Use curly bracket, `{}` to use Javascript code in JSX.
+
+## State and Event Handler
+State is used to remember some information and can be initialized using `useState`. Event handler handled an event (e.g. `onClick`).
+
+``` javascript
+import { useState } from 'react';
+
+function MyButton() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    setCount(count + 1);
+  }
+
+  return (
+    <button onClick={handleClick}>
+      Clicked {count} times
+    </button>
+  );
+}
+```
+
+To share state among components, put it in the parent level.
+
+## Props
+Props are a way of passing data from parent to child.
+
+# Normal Workflow
+1. Start wth a mockup.
+2. Break the UI into component in hierarchy.
+3. Build a static version in React.
+4. Find the minimal but complete representation of UI state.
+5. Identify where your state should live (can be closest common parent component).
+6. Add inverse data flow.
