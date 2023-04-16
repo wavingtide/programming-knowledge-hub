@@ -15,6 +15,8 @@ React is a JavaScript library for building user interfaces. It can be added into
   - [State and Event Handler](#state-and-event-handler)
   - [Props](#props)
 - [Normal Workflow](#normal-workflow)
+- [Production-grade React Framework](#production-grade-react-framework)
+  - [Next.js](#nextjs)
 
 
 # Main Concepts
@@ -103,3 +105,37 @@ Props are a way of passing data from parent to child.
 4. Find the minimal but complete representation of UI state.
 5. Identify where your state should live (can be closest common parent component).
 6. Add inverse data flow.
+
+
+# Production-grade React Framework
+## Next.js
+``` shell
+npx create-next-app
+```
+
+![](https://i.imgur.com/vMAIQb9.png)
+
+The project directory is as follows
+``` shell
+.
+├── README.md
+├── next-env.d.ts
+├── next.config.js
+├── node_modules
+├── package-lock.json
+├── package.json
+├── pages
+│   ├── _app.tsx
+│   ├── _document.tsx
+│   ├── api
+│   └── index.tsx
+├── postcss.config.js
+├── public
+│   ├── favicon.ico
+│   ├── next.svg
+│   └── vercel.svg
+├── styles
+│   └── globals.css
+├── tailwind.config.js
+└── tsconfig.json
+```
