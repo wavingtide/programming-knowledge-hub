@@ -604,7 +604,7 @@ X-Token: bar
 ```
 
 ## Form Data and Request Files
-*Requirements: `pip install python-multipart`* (come with default fastapi installation)  
+*Requirements: `pip install python-multipart`*
 
 Data from forms is normally encoded using media type `application/x-www-form-urlencoded` when it doesn't include file, and encoded as `multipart/form-data` when the form include file.  
 
@@ -1296,7 +1296,7 @@ app.include_router(
 A router can also be included multiple times with different prefix (e.g. when having different API versions). `APIRouter` can also be included in another `APIRouter`.
 
 ## Testing
-*Requirements: `pip install httpx`* (come with default fastapi installation) 
+*Requirements: `pip install httpx`*
 
 FastAPI uses [pytest](https://docs.pytest.org/en/latest/).
 
