@@ -10,6 +10,7 @@ Node.js is an open-source and cross-platform JavaScript runtime environment. Nod
 - [Running a Server](#running-a-server)
 - [npm Package Manager](#npm-package-manager)
 - [Difference between Development and Production](#difference-between-development-and-production)
+- [Using TypeScript](#using-typescript)
 - [Express](#express)
 
 
@@ -111,6 +112,17 @@ Setting the environment to `production` generally ensures that
 - logging is kept to minimum, essential level
 - more caching levels take place to optimize performance
 
+
+# Using TypeScript
+Install TypeScript
+``` shell
+npm i -D typescript
+```
+
+Compile TypeScript to JavaScript
+``` shell
+npx tsc example.ts
+```
 
 # Express
 Install the Express Generator globally on your machine.

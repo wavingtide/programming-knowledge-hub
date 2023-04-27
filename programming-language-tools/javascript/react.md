@@ -15,6 +15,7 @@ React is a JavaScript library for building user interfaces. It can be added into
   - [State and Event Handler](#state-and-event-handler)
   - [Props](#props)
 - [Normal Workflow](#normal-workflow)
+- [Setting up a React Environment](#setting-up-a-react-environment)
 - [Production-grade React Framework](#production-grade-react-framework)
   - [Next.js](#nextjs)
 
@@ -105,6 +106,64 @@ Props are a way of passing data from parent to child.
 4. Find the minimal but complete representation of UI state.
 5. Identify where your state should live (can be closest common parent component).
 6. Add inverse data flow.
+
+
+# Setting up a React Environment
+To set up a react app, you can use `create-react-app`.
+``` shell
+npx create-react-app frontend
+```
+![](https://i.imgur.com/v4tWiYo.png)
+
+`create-react-app` will install dependencies, initialize a git repository
+
+The project directory is as follows
+``` shell
+.
+├── README.md
+├── node_modules
+├── package-lock.json
+├── package.json
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+└── src
+    ├── App.css
+    ├── App.js
+    ├── App.test.js
+    ├── index.css
+    ├── index.js
+    ├── logo.svg
+    ├── reportWebVitals.js
+    └── setupTests.js
+```
+
+To run the development server, `cd` into the project directory and run `npm start`
+``` shell
+cd frontend
+npm start
+```
+![](https://i.imgur.com/DHtCWJD.png)
+
+
+Bundles the app into static files for production.
+``` shell
+npm run build
+```
+
+Starts the test runner
+``` shell
+npm test
+```
+
+Removes this tool and copies build dependencies, configuration files and scripts into the app direcoty. If you do this, you can't go back.
+``` shell
+npm run eject
+```
 
 
 # Production-grade React Framework
