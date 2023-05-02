@@ -8,12 +8,13 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
 - [Terraform](#terraform)
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-  - [Miscellaneous](#miscellaneous)
+  - [`tfenv`](#tfenv)
 - [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
 - [State](#state)
   - [Backend](#backend)
   - [Workspace](#workspace)
+- [Modules](#modules)
 
 
 # Installation
@@ -28,7 +29,7 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 sudo apt update && sudo apt install terraform
 ```
 
-## Miscellaneous
+## `tfenv`
 Terraform has a version manager called [tfenv](https://github.com/tfutils/tfenv).
 
 To install it in mac, you can use homebrew
@@ -109,7 +110,7 @@ See the plan
 terraform plan
 ```
 
-Apple the configuration
+Apply the configuration
 ``` shell
 terraform apply
 ```
@@ -139,3 +140,31 @@ Backend are responsible for storing state and providing an API for state locking
 Terraform starts with a single workspace called `default`.
 
 The current workspace can be used using `${teraform.workspace}`.
+
+Use case: a common use for multiple workspaces is to create a parallel, distinct copy of a set of infrastructure to test a set of changes before modifying production infrastructure
+
+Workspace is not suitable if the organizations want to create a strong separation between multiple deployments of the same infrastructure serving different development stages or different internal teams, which each deployment often has different credentials and access controls
+
+List the workspace
+``` shell
+terraform workspace list
+```
+
+``` shell
+* default
+```
+
+``` shell
+terraform workspace new
+```
+
+``` shell
+terraform workspace delete
+```
+
+``` shell
+terraform workspace select
+```
+
+# Modules
+A module is a container for multiple resources that are used together. A module consists of a collection of `.tf` and/or `.tf.json` files kept together in a directory.
