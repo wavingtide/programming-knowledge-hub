@@ -11,6 +11,7 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
   - [`tfenv`](#tfenv)
 - [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
+- [Terraform Language](#terraform-language)
 - [State](#state)
   - [Backend](#backend)
   - [Workspace](#workspace)
@@ -99,11 +100,13 @@ Initializing terraform
 terraform init
 ```
 ![](https://i.imgur.com/5Rbtolu.png)
+This will create a `.terraform/` folder and `.terraform.lock.hcl` file in your current folder.
 
 Check formatting
 ``` shell
 terraform fmt
 ```
+![](https://i.imgur.com/7jMSBLm.png)
 
 See the plan
 ``` shell
@@ -128,6 +131,19 @@ To remove the resource.
 terraform destroy
 ```
 
+# Terraform Language
+``` terraform
+<BLOCK TYPE> "<BLOCK LABEL>" "<BLOCK LABEL>" {
+  # Block body
+  <IDENTIFIER> = <EXPRESSION> # Argument
+}
+```
+
+Example
+- `<BLOCK TYPE>` - `variable`, `provider`, `resource`, `data`
+- `<BLOCK LABEL>` - `aws_s3_bucket`, `google_cloud_run_service`, `databricks_notebook`
+
+
 # State
 State is the status of the managed infrastructure and configuration. By default, it is stored in a local file called `terraform.tfstate`. 
 
@@ -147,24 +163,46 @@ Workspace is not suitable if the organizations want to create a strong separatio
 
 List the workspace
 ``` shell
-terraform workspace list
-```
+$ terraform workspace list
 
-``` shell
 * default
 ```
 
+To create a workspace
 ``` shell
-terraform workspace new
+terraform workspace new <name>
+```
+This will create a folder `terraform.tfstate.d` if it doesn't already exist. Each workspace will be a separate subfolder.
+
+To delete a workspace
+``` shell
+terraform workspace delete <name>
 ```
 
+To switch to another workspace
 ``` shell
-terraform workspace delete
+terraform workspace select <name>
 ```
 
+To show the current workspace
 ``` shell
-terraform workspace select
+terraform workspace show
+```
+
+Terraform workspace can be referred as a variable `${terraform.workspace}` when writing `.tf` file
+``` terraform
+locals {
+  instance_name = "${terraform.workspace}-instance" 
+}
 ```
 
 # Modules
 A module is a container for multiple resources that are used together. A module consists of a collection of `.tf` and/or `.tf.json` files kept together in a directory.
+
+- *Root module* - Resources defined in `.tf` files in the main working directory. Every terraform configuration has root module
+- *Child module* - A module that called by another module
+- *Published module* - Module from public or private registry
+
+[Terraform Registry](https://registry.terraform.io/browse/modules) hosts a broad collection of publicly available Terraform modules for configurating many kinds of common infrastructure.
+
+Terraform Cloud and Terraform Enterprise both include a private module registry for sharing modules internally within your organization.
