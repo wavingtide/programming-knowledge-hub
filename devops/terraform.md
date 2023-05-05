@@ -16,6 +16,8 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
   - [Backend](#backend)
   - [Workspace](#workspace)
 - [Modules](#modules)
+  - [`module` block](#module-block)
+  - [Meta-Arguments](#meta-arguments)
 
 
 # Installation
@@ -206,3 +208,37 @@ A module is a container for multiple resources that are used together. A module 
 [Terraform Registry](https://registry.terraform.io/browse/modules) hosts a broad collection of publicly available Terraform modules for configurating many kinds of common infrastructure.
 
 Terraform Cloud and Terraform Enterprise both include a private module registry for sharing modules internally within your organization.
+
+## `module` block
+Modules are called from within other modules using `module` block.
+
+Using local module
+``` terraform
+module "server" {
+  source = "./app_cluster"
+
+  server = 5
+}
+```
+
+Using module from a module registry
+``` terraform
+module "consul" {
+  source = "hashicorp/consul/aws"
+  version = ">= 0.0.5, < 0.1.0"
+}
+```
+The label following the block name `module` is the local name of the module. For the argument
+- `source` argument is mandatory for all modules
+- `version` argument is recommended for modules from registry
+- Terraform have other meta-arguments such as `for_each` and `depends_on`
+- Other input variables for the modules
+
+After adding, removing, or modifying `module` blocks, you must re-run `terraform init` for Terraform to adjust the installed modules. `-upgrade` option can be used to upgrade moduke to the latest available version.
+
+## Meta-Arguments
+Along with `source` and `version`, Terraform defines a few more optional meta-arguments
+- `count`
+- `for_each`
+- `providers`
+- `depends_on`
