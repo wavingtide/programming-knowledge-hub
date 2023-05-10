@@ -12,6 +12,7 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
 - [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
 - [Terraform Language](#terraform-language)
+- [Resource](#resource)
 - [State](#state)
   - [Backend](#backend)
   - [Workspace](#workspace)
@@ -146,6 +147,11 @@ Example
 - `<BLOCK LABEL>` - `aws_s3_bucket`, `google_cloud_run_service`, `databricks_notebook`
 
 
+# Resource
+
+
+
+
 # State
 State is the status of the managed infrastructure and configuration. By default, it is stored in a local file called `terraform.tfstate`. 
 
@@ -230,6 +236,11 @@ module "consul" {
 ```
 The label following the block name `module` is the local name of the module. For the argument
 - `source` argument is mandatory for all modules
+  - Local path
+  - Terraform registry
+  - Version control platform such as GitHub, Bitbucket
+  - HTTP URLs
+  - S3 bucket, GCS buckets
 - `version` argument is recommended for modules from registry
 - Terraform have other meta-arguments such as `for_each` and `depends_on`
 - Other input variables for the modules
@@ -238,7 +249,8 @@ After adding, removing, or modifying `module` blocks, you must re-run `terraform
 
 ## Meta-Arguments
 Along with `source` and `version`, Terraform defines a few more optional meta-arguments
-- `count`
-- `for_each`
-- `providers`
-- `depends_on`
+- `count` - accept a whole number, and create that many instances of the resource or module. Expression `count.index` can be used to modify the configuration of each object.
+  - To refer to single object, one can use index to refers to individual instances
+- `for_each` - accepts a map or a set of strings, and creates an instance for each item in that map or set
+- `providers` - specify which provider configurations from the parent module will be available inside the child module
+- `depends_on` - handle hidden resource or module dependencies that Terraform cannot automatically infer

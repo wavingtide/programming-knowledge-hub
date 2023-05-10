@@ -6,32 +6,48 @@
 ├── [LICENSE](LICENSE)  
 ├── [README.md](README.md)  
 ├── [cloud](cloud/)  
+│    ├── [README.md](cloud/README.md)  
 │    ├── [aws](cloud/aws/)  
 │    │    └── [boto3.md](cloud/aws/boto3.md) (e)  
+│    ├── [azure](cloud/azure/)  
+│    │    └── [azure.md](cloud/azure/azure.md) (e)  
 │    └── [gcp](cloud/gcp/)  
-│           ├── [gcloud.md](cloud/gcp/gcloud.md) (wip)  
-│           └── [gke.md](cloud/gcp/gke.md) (e)  
+│           ├── [gcloud.md](cloud/gcp/gcloud.md) (wip)  
+│           └── [gke.md](cloud/gcp/gke.md) (e)  
 ├── [computer-science](computer-science/)  
 │    ├── [README.md](computer-science/README.md) (e)  
 │    ├── [data-structure-and-algorithm.md](computer-science/data-structure-and-algorithm.md) (e)  
-│    └── [networking.md](computer-science/networking.md) (wip)  
+│    ├── [networking.md](computer-science/networking.md) (wip)  
+│    ├── [ssh.md](computer-science/ssh.md) (e)  
+│    └── [system-design](computer-science/system-design/)  
+│         └── [twitter.md](computer-science/system-design/twitter.md) (e)  
 ├── [data-engineer](data-engineer/)  
 │    ├── [README.md](data-engineer/README.md) (e)  
+│    ├── [data-pipeline-orchestration](data-engineer/data-pipeline-orchestration/)  
+│    │    ├── [README.md](data-engineer/data-pipeline-orchestration/README.md) (e)  
+│    │    ├── [airflow.md](data-engineer/data-pipeline-orchestration/airflow.md) (e)  
+│    │    ├── [argo.md](data-engineer/data-pipeline-orchestration/argo.md) (e)  
+│    │    └── [prefect.md](data-engineer/data-pipeline-orchestration/prefect.md) (wip)  
 │    ├── [database](data-engineer/database/)  
 │    │    ├── [README.md](data-engineer/database/README.md) (e)  
+│    │    ├── [graph-database](data-engineer/database/graph-database/)  
+│    │    │  └── [ubuntu_setup.sh](environment-setup/linux/ubuntu_setup.sh) (wip)  
+│    │    ├── [nosql](data-engineer/database/nosql/)  
+│    │         └── [ubuntu_setup.sh](environment-setup/linux/ubuntu_setup.sh) (wip)  
+│    │    └── [sql.md](data-engineer/database/sql/)  
+│    │         └── [ubuntu_setup.sh](environment-setup/linux/ubuntu_setup.sh) (wip)  
 │    │    ├── [mongodb.md](data-engineer/database/mongodb.md) (e)  
 │    │    └── [sqlite.md](data-engineer/database/sqlite.md) (wip)  
 │    ├── [dbt.md](data-engineer/dbt.md) (wip)  
-│    ├── [glossary.md](data-engineer/glossary.md) (e)  
 │    ├── [web-scraping](data-engineer/web-scraping/)  
 │    │    ├── [README.md](data-engineer/web-scraping/README.md) (e)  
 │    │    ├── [beautifulsoup.md](data-engineer/web-scraping/beautifulsoup.md) (e)  
 │    │    ├── [scrapy.md](data-engineer/web-scraping/scrapy.md) (wip)  
 │    │    └── [selenium.md](data-engineer/web-scraping/selenium.md) (e)  
 │    └── [workflow](data-engineer/workflow/)  
-│           ├── [airflow.md](data-engineer/workflow/airflow.md) (e)  
-│           ├── [argo.md](data-engineer/workflow/argo.md) (e)  
-│           └── [prefect.md](data-engineer/workflow/prefect.md) (e)  
+│         ├── [airflow.md](data-engineer/workflow/airflow.md) (e)  
+│         ├── [argo.md](data-engineer/workflow/argo.md) (e)  
+│         └── [prefect.md](data-engineer/workflow/prefect.md) (e)  
 ├── [data-science](data-science/)  
 │    ├── [README.md](data-science/README.md) (e)  
 │    ├── [classical-ml](data-science/classical-ml/)  
@@ -62,7 +78,7 @@
 │    │    ├── [openai.md](data-science/natural-language-processing/openai.md)  
 │    │    └── [spacy.md](data-science/natural-language-processing/spacy.md) (wip)  
 │    └── [time-series](data-science/time-series/)  
-│           └── [darts.md](data-science/time-series/darts.md) (e)  
+│         └── [darts.md](data-science/time-series/darts.md) (e)  
 ├── [devops](devops/)  
 │    ├── [README.md](devops/README.md) (e)  
 │    ├── [cicd](devops/cicd/)  
@@ -85,7 +101,7 @@
 │    ├── [virtual-machine](environment-setup/virtual-machine/)  
 │    │    └── [hyper_v.md](environment-setup/virtual-machine/hyper_v.md) (e)  
 │    └── [windows](environment-setup/windows/)  
-│           └── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
+│         └── [windows_setup.md](environment-setup/windows/windows_setup.md) (e)  
 ├── [operating-system](operating-system/)  
 │    ├── [README.md](operating-system/README.md) (e)  
 │    ├── [linux_commands.md](operating-system/linux_commands.md)  
@@ -98,10 +114,10 @@
 │    │    ├── [node.md](programming-language-tools/javascript/node.md) (wip)  
 │    │    └── [react.md](programming-language-tools/javascript/react.md) (wip)  
 │    └── [python](programming-language-tools/python/)  
-│           ├── [README.md](programming-language-tools/python/README.md)  
-│           ├── [pipx.md](programming-language-tools/python/pipx.md)  
-│           ├── [poetry.md](programming-language-tools/python/poetry.md)  
-│           └── [pre-commit.md](programming-language-tools/python/pre-commit.md) (wip)  
+│         ├── [README.md](programming-language-tools/python/README.md)  
+│         ├── [pipx.md](programming-language-tools/python/pipx.md)  
+│         ├── [poetry.md](programming-language-tools/python/poetry.md)  
+│         └── [pre-commit.md](programming-language-tools/python/pre-commit.md) (wip)  
 ├── [security](security/)  
 │    └── [README.md](security/README.md) (e)  
 ├── [software-engineering-philosophy](software-engineering-philosophy/)  
@@ -126,32 +142,46 @@
 ├── LICENSE
 ├── README.md
 ├── cloud
+│   ├── README.md
 │   ├── aws
 │   │   └── boto3.md
+│   ├── azure
+│   │   └── azure.md
 │   └── gcp
 │       ├── gcloud.md
 │       └── gke.md
 ├── computer-science
 │   ├── README.md
 │   ├── data-structure-and-algorithm.md
-│   └── networking.md
+│   ├── networking.md
+│   ├── ssh.md
+│   └── system-design
+│       └── twitter.md
 ├── data-engineer
 │   ├── README.md
+│   ├── data-pipeline-orchestration
+│   │   ├── README.md
+│   │   ├── airflow.md
+│   │   ├── argo.md
+│   │   └── prefect.md
 │   ├── database
 │   │   ├── README.md
-│   │   ├── mongodb.md
-│   │   └── sqlite.md
+│   │   ├── graph-database
+│   │   │   └── neo4j.md
+│   │   ├── nosql
+│   │   │   ├── elasticsearch.md
+│   │   │   └── mongodb.md
+│   │   └── sql
+│   │       ├── postgresql.md
+│   │       ├── snowflake.md
+│   │       └── sqlite.md
 │   ├── dbt.md
-│   ├── glossary.md
-│   ├── web-scraping
-│   │   ├── README.md
-│   │   ├── beautifulsoup.md
-│   │   ├── scrapy.md
-│   │   └── selenium.md
-│   └── workflow
-│       ├── airflow.md
-│       ├── argo.md
-│       └── prefect.md
+│   ├── kafka.md
+│   └── web-scraping
+│       ├── README.md
+│       ├── beautifulsoup.md
+│       ├── scrapy.md
+│       └── selenium.md
 ├── data-science
 │   ├── README.md
 │   ├── classical-ml
@@ -163,14 +193,13 @@
 │   ├── deep-learning
 │   │   ├── README.md
 │   │   ├── architecture.md
+│   │   ├── gpu.md
 │   │   ├── keras.md
 │   │   ├── pytorch.md
 │   │   └── tensorflow.md
 │   ├── graph-data-science
 │   │   └── networkx.md
-│   ├── huggingface.md
 │   ├── hyperopt.md
-│   ├── kaggle.md
 │   ├── mlops
 │   │   ├── README.md
 │   │   └── mlflow.md
@@ -181,22 +210,28 @@
 │   │   ├── nltk.md
 │   │   ├── openai.md
 │   │   └── spacy.md
+│   ├── platform
+│   │   ├── huggingface.md
+│   │   └── kaggle.md
 │   └── time-series
 │       └── darts.md
 ├── devops
 │   ├── README.md
 │   ├── cicd
 │   │   ├── README.md
-│   │   └── github-actions.md
+│   │   ├── github-actions.md
+│   │   └── gitlab-ci.md
 │   ├── container
 │   │   ├── docker.md
 │   │   ├── dockerfile-writing.md
 │   │   └── kubernetes.md
-│   └── terraform.md
+│   └── infrastructure-as-code
+│       └── terraform.md
 ├── environment-setup
 │   ├── README.md
 │   ├── linux
 │   │   ├── README.md
+│   │   ├── disk-partitioning.md
 │   │   └── ubuntu
 │   │       └── ubuntu_setup.sh
 │   ├── mac
@@ -211,27 +246,46 @@
 │   ├── linux_commands.md
 │   ├── powershell_commands.md
 │   └── windows_commands.md
+├── programming-language
+│   ├── README.md
+│   ├── cpp.md
+│   ├── go.md
+│   ├── javascript.md
+│   └── rust.md
 ├── programming-language-tools
 │   ├── README.md
-│   ├── javascript
-│   │   ├── README.md
-│   │   ├── node.md
-│   │   └── react.md
 │   └── python
 │       ├── README.md
+│       ├── async.md
+│       ├── conda.md
+│       ├── logging.md
 │       ├── pipx.md
 │       ├── poetry.md
-│       └── pre-commit.md
+│       ├── pre-commit.md
+│       ├── pytest.md
+│       ├── python-package.md
+│       └── streamlit.md
 ├── security
 │   └── README.md
 ├── software-engineering-philosophy
+│   ├── contribute-to-open-source.md
 │   ├── design-document.md
-│   └── design-principle.md
+│   ├── design-principle.md
+│   ├── documentation
+│   │   └── markdown.md
+│   └── style-guide.md
 ├── version-control-system
 │   ├── git-workflow.md
 │   ├── git.md
 │   └── github.md
-└── web-framework
+└── web-development
     ├── README.md
-    └── fastapi.md
+    ├── javascript
+    │   ├── node.md
+    │   └── react.md
+    ├── python
+    │   └── fastapi.md
+    └── web-server
+        ├── README.md
+        └── nginx.md
 ```
