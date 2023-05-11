@@ -406,3 +406,16 @@ Pick `<commit>` from another branch to add to the HEAD branch.
 ``` shell
 git cherry-pick <commit1> <commit2>
 ```
+
+# Git Stash
+`git stash` temporarily shelves (or stashes) changes you've made to your working copy so you can work on something else, and then come back and re-apply them later on.
+
+Stash the work
+``` shell
+git stash
+```
+
+Reapply previous stashed changes.
+``` shell
+git stash pop
+```

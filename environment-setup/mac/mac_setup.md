@@ -1,4 +1,5 @@
 # MacOS Setup
+*(based on [youtube video](https://www.youtube.com/watch?v=l9n-5OdwJuQ&ab_channel=AndresVidoza) and [video](https://www.youtube.com/watch?v=vWfkuDJC7ZA&ab_channel=AndresVidoza) by Andres Vidoza)*
 
 Steps to set up a MacBook for programming usage.
 
