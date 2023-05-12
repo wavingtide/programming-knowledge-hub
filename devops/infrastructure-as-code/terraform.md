@@ -1,7 +1,7 @@
 # Terraform
 *(refer to [developer hashicorp](https://developer.hashicorp.com/terraform) and [registry hashicorp](https://registry.terraform.io/))*
 
-Terraform is an infrastructure as code tool that lets you build, change and version infrastructure safely and efficiently.
+Terraform is an infrastructure as code tool that lets you define both cloud and on-prem resources in human-readable configuration files that you can version, reuse, and share.
 
 
 # Table of Contents
@@ -19,6 +19,12 @@ Terraform is an infrastructure as code tool that lets you build, change and vers
 - [Modules](#modules)
   - [`module` block](#module-block)
   - [Meta-Arguments](#meta-arguments)
+
+
+# Core Workflow
+- **Write** - Author infrastructure as code
+- **Plan** - Preview changes before applying
+- **Apply** - Provision reproducible infrastructure
 
 
 # Installation
@@ -56,12 +62,6 @@ tfenv install latest
 ```
 
 
-# Core Workflow
-- Write - Define infrastructure in configuration file
-- Plan - Review the changes Terraform will make to your infrastructure
-- Apply - Terraform provisions your infrastructure and update the static file
-
-
 # Quick Start
 Create a `main.tf` file
 ``` terraform
@@ -92,10 +92,10 @@ resource "aws_instance" "app_server" {
 
 Add environment variable
 ``` shell
-export AWS_ACCESS_KEY_ID=
+export AWS_ACCESS_KEY_ID=<aws-access-key-id>
 ```
 ``` shell
-export AWS_SECRET_ACCESS_KEY=
+export AWS_SECRET_ACCESS_KEY=<aws-secret-access-key>
 ```
 
 Initializing terraform
@@ -109,6 +109,7 @@ Check formatting
 ``` shell
 terraform fmt
 ```
+If there is formatting problem, an error will be raised
 ![](https://i.imgur.com/7jMSBLm.png)
 
 See the plan
@@ -135,6 +136,8 @@ terraform destroy
 ```
 
 # Terraform Language
+The main purpose of the Terraform language is declaring resources, which represent infrastructure object.
+
 ``` terraform
 <BLOCK TYPE> "<BLOCK LABEL>" "<BLOCK LABEL>" {
   # Block body
@@ -147,13 +150,11 @@ Example
 - `<BLOCK LABEL>` - `aws_s3_bucket`, `google_cloud_run_service`, `databricks_notebook`
 
 
-# Resource
-
 
 
 
 # State
-State is the status of the managed infrastructure and configuration. By default, it is stored in a local file called `terraform.tfstate`. 
+State is the status of the managed infrastructure and configuration, which acts as a source of truth for your environment. By default, it is stored in a local file called `terraform.tfstate`. 
 
 Terraform uses state to determine which changes to make to your infrastructure. Prior to any operation, Terraform does a refresh to update the state with real infrastructure.
 
