@@ -61,6 +61,9 @@ Usage
 tfenv install latest
 ```
 
+# Generated File
+- `.terraform.lock.hcl` - dependency lock file
+
 
 # Quick Start
 Create a `main.tf` file
@@ -146,9 +149,10 @@ The main purpose of the Terraform language is declaring resources, which represe
 ```
 
 Example
-- `<BLOCK TYPE>` - `variable`, `provider`, `resource`, `data`
+- `<BLOCK TYPE>` - `resource`, `variable`, `provider`, `data`
 - `<BLOCK LABEL>` - `aws_s3_bucket`, `google_cloud_run_service`, `databricks_notebook`
 
+Files containing Terraform code are often called *configuration files*.
 
 
 
@@ -208,6 +212,8 @@ locals {
 # Modules
 A module is a container for multiple resources that are used together. A module consists of a collection of `.tf` and/or `.tf.json` files kept together in a directory.
 
+Terraform evaluates all of the configuration files in a module, effectively treating the entire module as a single document.
+
 - *Root module* - Resources defined in `.tf` files in the main working directory. Every terraform configuration has root module
 - *Child module* - A module that called by another module
 - *Published module* - Module from public or private registry
@@ -255,3 +261,12 @@ Along with `source` and `version`, Terraform defines a few more optional meta-ar
 - `for_each` - accepts a map or a set of strings, and creates an instance for each item in that map or set
 - `providers` - specify which provider configurations from the parent module will be available inside the child module
 - `depends_on` - handle hidden resource or module dependencies that Terraform cannot automatically infer
+
+## Standard Module Structure
+``` shell
+module
+├── README.md
+├── main.tf
+├── variables.tf
+└── outputs.tf
+```

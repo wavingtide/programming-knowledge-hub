@@ -53,8 +53,8 @@ Poetry is a tool for **dependency management** and **packaging** in Python. It a
 **Requirements**: Python 3.7+
 
 # Poetry Generated File
-- pyproject.toml (a python project configuration file with a session for top level dependencies)
-- poetry.lock (similar to `requirements.txt`, stores all the packages and their exact versions that it downloaded)
+- `pyproject.toml` (a python project configuration file with a session for top level dependencies)
+- `poetry.lock` (similar to `requirements.txt`, stores all the packages and their exact versions that it downloaded)
 
 <table><tr>
 <td> <img src="https://i.imgur.com/bEYrZ6V.png" alt="Drawing" style="width: 250px;"/> </td>
