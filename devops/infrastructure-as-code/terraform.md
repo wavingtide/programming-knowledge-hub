@@ -9,22 +9,17 @@ Terraform is an infrastructure as code tool that lets you define both cloud and 
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
   - [`tfenv`](#tfenv)
-- [Core Workflow](#core-workflow)
 - [Quick Start](#quick-start)
+- [Core Workflow](#core-workflow)
+- [Generated File/Folders](#generated-filefolders)
 - [Terraform Language](#terraform-language)
-- [Resource](#resource)
 - [State](#state)
   - [Backend](#backend)
   - [Workspace](#workspace)
 - [Modules](#modules)
   - [`module` block](#module-block)
   - [Meta-Arguments](#meta-arguments)
-
-
-# Core Workflow
-- **Write** - Author infrastructure as code
-- **Plan** - Preview changes before applying
-- **Apply** - Provision reproducible infrastructure
+  - [Standard Module Structure](#standard-module-structure)
 
 
 # Installation
@@ -37,6 +32,16 @@ wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
 sudo apt update && sudo apt install terraform
+```
+
+For mac
+Install the HashiCorp tap
+``` shell
+brew tap hashicorp/tap
+```
+Install Terraform
+``` shell
+brew install hashicorp/tap/terraform
 ```
 
 ## `tfenv`
@@ -61,66 +66,104 @@ Usage
 tfenv install latest
 ```
 
-# Generated File
-- `.terraform.lock.hcl` - dependency lock file
-
 
 # Quick Start
-Create a `main.tf` file
-``` terraform
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
-    }
-  }
+1. Install CLI and define environment variable
+   - AWS
+   Create AWS account, install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), create a credential in AWS
+      ``` shell
+      export AWS_ACCESS_KEY_ID=<aws-access-key-id>
+      ```
+      ``` shell
+      export AWS_SECRET_ACCESS_KEY=<aws-secret-access-key>
+      ```
+   - GCP
+   Create GCP account, create GCP project, enable Google Compute Engine and create a service account with role 'Editor', create the service account key
+      ``` shell
 
-  required_version = ">= 1.2.0"
-}
+      ```
+   - Azure
+   Create Azure account, install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli). Authenticate using the Azure CLI
+      ``` shell
+      az login
+      ```
+      Set subcription
+      ``` shell
+      az account set --subscription "35akss-subscription-id"
+      ```
+      Create service principal
+      ``` shell
+      az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<SUBSCRIPTION_ID>"
+      ```
+      Set environment variables
+      ``` shell
+       export ARM_CLIENT_ID="<APPID_VALUE>"
+       export ARM_CLIENT_SECRET="<PASSWORD_VALUE>"
+       export ARM_SUBSCRIPTION_ID="<SUBSCRIPTION_ID>"
+       export ARM_TENANT_ID="<TENANT_VALUE>"
+      ```
+2. Create a `main.tf` file in the project repository
+   - AWS
+      ``` terraform
+      provider "aws" {
+        region  = "us-west-2"
+      }
 
-provider "aws" {
-  region  = "us-west-2"
-}
+      resource "aws_instance" "app_server" {
+        ami           = "ami-830c94e3"
+        instance_type = "t2.micro"
 
-resource "aws_instance" "app_server" {
-  ami           = "ami-830c94e3"
-  instance_type = "t2.micro"
+        tags = {
+          Name = "ExampleAppServerInstance"
+        }
+      }
+      ```
+   - GCP
+      ``` terraform
+      provider "google" {
+        credentials = file("<NAME>.json")
 
-  tags = {
-    Name = "ExampleAppServerInstance"
-  }
-}
-```
+        project = "<PROJECT_ID>"
+        region  = "us-central1"
+        zone    = "us-central1-c"
+      }
 
-Add environment variable
-``` shell
-export AWS_ACCESS_KEY_ID=<aws-access-key-id>
-```
-``` shell
-export AWS_SECRET_ACCESS_KEY=<aws-secret-access-key>
-```
+      resource "google_compute_network" "vpc_network" {
+        name = "terraform-network"
+      }
+      ```
+   - Azure
+      ``` terraform
+      provider "azurerm" {
+        features {}
+      }
 
-Initializing terraform
+      resource "azurerm_resource_group" "rg" {
+        name     = "myTFResourceGroup"
+        location = "westus2"
+      }
+      ```
+
+3. Initializing terraform
 ``` shell
 terraform init
 ```
 ![](https://i.imgur.com/5Rbtolu.png)
 This will create a `.terraform/` folder and `.terraform.lock.hcl` file in your current folder.
 
-Check formatting
+4. Check formatting
 ``` shell
 terraform fmt
 ```
 If there is formatting problem, an error will be raised
 ![](https://i.imgur.com/7jMSBLm.png)
 
-See the plan
+5. See the plan
 ``` shell
 terraform plan
 ```
 
-Apply the configuration
+6. Apply the configuration
 ``` shell
 terraform apply
 ```
@@ -137,6 +180,17 @@ To remove the resource.
 ``` shell
 terraform destroy
 ```
+
+
+# Core Workflow
+- **Write** - Author infrastructure as code
+- **Plan** - Preview changes before applying
+- **Apply** - Provision reproducible infrastructure
+
+
+# Generated File/Folders
+- `.terraform.lock.hcl` - dependency lock file
+
 
 # Terraform Language
 The main purpose of the Terraform language is declaring resources, which represent infrastructure object.
