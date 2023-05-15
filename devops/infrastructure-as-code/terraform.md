@@ -13,12 +13,14 @@ Terraform is an infrastructure as code tool that lets you define both cloud and 
 - [Core Workflow](#core-workflow)
 - [Generated File/Folders](#generated-filefolders)
 - [Terraform Language](#terraform-language)
+  - [Meta-Arguments](#meta-arguments)
+- [Data Source](#data-source)
 - [State](#state)
   - [Backend](#backend)
   - [Workspace](#workspace)
 - [Modules](#modules)
   - [`module` block](#module-block)
-  - [Meta-Arguments](#meta-arguments)
+  - [Meta-Arguments](#meta-arguments-1)
   - [Standard Module Structure](#standard-module-structure)
 
 
@@ -189,7 +191,9 @@ terraform destroy
 
 
 # Generated File/Folders
-- `.terraform.lock.hcl` - dependency lock file
+When running `terraform init`
+- `.terraform.lock.hcl` - dependency lock file which tracks the provider dependencies
+  - Terraform will re-select the version in lock file if it exists, use `terraform init -upgrade` to override the behavior
 
 
 # Terraform Language
@@ -208,8 +212,15 @@ Example
 
 Files containing Terraform code are often called *configuration files*.
 
+## Meta-Arguments
+- `depends_on`
+- `count`
+- `for_each`
+- `provider`
+- `lifecycle`
 
-
+# Data Source
+Data sources allow Terraform to use information defined outside of Terraform.
 
 # State
 State is the status of the managed infrastructure and configuration, which acts as a source of truth for your environment. By default, it is stored in a local file called `terraform.tfstate`. 
