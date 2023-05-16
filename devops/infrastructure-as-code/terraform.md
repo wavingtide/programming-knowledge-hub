@@ -11,6 +11,7 @@ Terraform is an infrastructure as code tool that lets you define both cloud and 
   - [`tfenv`](#tfenv)
 - [Quick Start](#quick-start)
 - [Core Workflow](#core-workflow)
+- [Concept](#concept)
 - [Generated File/Folders](#generated-filefolders)
 - [Terraform Language](#terraform-language)
   - [Meta-Arguments](#meta-arguments)
@@ -190,7 +191,17 @@ terraform destroy
 - **Apply** - Provision reproducible infrastructure
 
 
+# Concept
+- Resource - Infrastructure object
+- Resource block - Describe one or more infrastructure objects
+- Module
+- State
+- Provider - A plugin for Terraform that offers a collection of resource types
+
+
 # Generated File/Folders
+Files containing Terraform code are often called *configuration files*.
+
 When running `terraform init`
 - `.terraform.lock.hcl` - dependency lock file which tracks the provider dependencies
   - Terraform will re-select the version in lock file if it exists, use `terraform init -upgrade` to override the behavior
@@ -210,14 +221,87 @@ Example
 - `<BLOCK TYPE>` - `resource`, `variable`, `provider`, `data`
 - `<BLOCK LABEL>` - `aws_s3_bucket`, `google_cloud_run_service`, `databricks_notebook`
 
-Files containing Terraform code are often called *configuration files*.
+Every Terraform provider has its own [documentation](https://registry.terraform.io/search/providers?namespace=hashicorp), describing its resource type and their arguments.
 
 ## Meta-Arguments
-- `depends_on`
-- `count`
-- `for_each`
-- `provider`
-- `lifecycle`
+| Meta-arguments | Description | Remark |
+| -- | -- | -- |
+| `depends_on` | handle hidden resource or module dependencies that Terraform cannot automatically infer |  |
+| `count` | accept a whole number, and create that many instances of the resource or module | <li> Attribute: `count.index` </li> <li> A resource is identified by an index number, e.g. `aws_instance.server[0]` </li> |
+| `for_each` | accepts a map or a set of strings, and creates an instance for each item in that map or set | <li> Attribute: `each.key`, `each.value` (same as `each.key` when a set is provided) </li> <li> A resource is identified by key, e.g. `azurerm_resource_group.rg["a_group"]` </li> |
+| `provider` | selecting a non-default provider configuration | Accepted format: `<PROVIDER>.<ALIAS>` |
+| `lifecycle` | lifecycle customization | Argument available: `create_before_destroy`, `prevent_destroy`, `ignore_changes`, and `replace_triggered_by` |
+| `provisioner` | taking extra actions after resource creation | |
+
+Meta argument `count`
+``` terraform
+resource "aws_instance" "server" {
+  count = 4 # create four similar EC2 instances
+
+  ami           = "ami-a1b2c3d4"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "Server ${count.index}"
+  }
+}
+```
+
+Meta argument `for_each`
+
+Map
+``` terraform
+resource "azurerm_resource_group" "rg" {
+  for_each = {
+    a_group = "eastus"
+    another_group = "westus2"
+  }
+  name     = each.key
+  location = each.value
+}
+```
+Set
+``` terraform
+resource "aws_iam_user" "the-accounts" {
+  for_each = toset( ["Todd", "James", "Alice", "Dottie"] )
+  name     = each.key
+}
+```
+
+Meta argument `provider`
+``` terraform
+# default configuration
+provider "google" {
+  region = "us-central1"
+}
+
+# alternate configuration, whose alias is "europe"
+provider "google" {
+  alias  = "europe"
+  region = "europe-west1"
+}
+
+resource "google_compute_instance" "example" {
+  # This "provider" meta-argument selects the google provider
+  # configuration whose alias is "europe", rather than the
+  # default configuration.
+  provider = google.europe
+
+  # ...
+}
+```
+
+Meta argument `lifecycle`
+``` terraform
+resource "azurerm_resource_group" "example" {
+  # ...
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+
 
 # Data Source
 Data sources allow Terraform to use information defined outside of Terraform.
