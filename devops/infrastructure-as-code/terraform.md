@@ -304,7 +304,29 @@ resource "azurerm_resource_group" "example" {
 
 
 # Data Source
-Data sources allow Terraform to use information defined outside of Terraform.
+Data sources allow Terraform to use information defined outside of Terraform, defined by another separate Terraform configuration, or modified by functions.
+
+Each providers may offer data sources alongside its set of resource types. (e.g. AWS EC2 has data source `aws_ami`, Google Compute Engine has data source `google_compute_address`).
+
+``` terraform
+data "aws_ami" "example" {
+  most_recent = true
+
+  owners = ["self"]
+  tags = {
+    Name   = "app-server"
+    Tested = "true"
+  }
+}
+```
+
+Each data instance will export one or more attributes, which can be used in other resources as reference expressions of the form `data.<TYPE>.<NAME>.<ATTRIBUTE>`
+
+Data sources are essentially a read only subset of resources, they can use meta-arguments including `count`, `for_each`, `provider`, `depends_on`. `lifecycle` is not available but reserved for future versions.
+
+Setting the `depends_on` meta-argument within `data` blocks defers reading of the data source until after all changes to the dependencies have been applied. Terrafrom do not recommend using `depends_on` with data resources.
+
+Data instance arguments may refer to computed values, in which case the attributes of the instance itself cannot be resolved until all of its arguments are defined. In this case, refreshing the data instance will be deferred until the "apply" phase, and all interpolations of the data instance attributes will show as "computed" in the plan since the values are not yet known.
 
 # State
 State is the status of the managed infrastructure and configuration, which acts as a source of truth for your environment. By default, it is stored in a local file called `terraform.tfstate`. 
