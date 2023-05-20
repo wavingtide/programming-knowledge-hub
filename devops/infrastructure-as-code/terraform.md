@@ -14,10 +14,11 @@ Terraform is an infrastructure as code tool that lets you define both cloud and 
 - [Concept](#concept)
 - [Generated File/Folders](#generated-filefolders)
 - [Terraform Language](#terraform-language)
-  - [Meta-Arguments](#meta-arguments)
-- [Data Source](#data-source)
-- [Provider](#provider)
-- [State](#state)
+  - [Resources](#resources)
+    - [Meta-Arguments](#meta-arguments)
+  - [Data Source](#data-source)
+  - [Provider](#provider)
+  - [State](#state)
   - [Backend](#backend)
   - [Workspace](#workspace)
 - [Modules](#modules)
@@ -224,7 +225,16 @@ Example
 
 Every Terraform provider has its own [documentation](https://registry.terraform.io/search/providers?namespace=hashicorp), describing its resource type and their arguments.
 
-## Meta-Arguments
+## Resources
+``` terraform
+resource "aws_instance" "web" {
+  ami           = "ami-a1b2c3d4"
+  instance_type = "t2.micro"
+}
+```
+The provider is matched using the first word of the resource type name by default, e.g. an `aws_instance` resource uses the default `aws` provider configuration 
+
+### Meta-Arguments
 | Meta-arguments | Description | Remark |
 | -- | -- | -- |
 | `depends_on` | handle hidden resource or module dependencies that Terraform cannot automatically infer |  |
@@ -328,7 +338,7 @@ Every Terraform provider has its own [documentation](https://registry.terraform.
   ```
 
 
-# Data Source
+## Data Source
 Data sources allow Terraform to use information defined outside of Terraform, defined by another separate Terraform configuration, or modified by functions.
 
 Each providers may offer data sources alongside its set of resource types. (e.g. AWS EC2 has data source `aws_ami`, Google Compute Engine has data source `google_compute_address`).
@@ -353,7 +363,7 @@ Setting the `depends_on` meta-argument within `data` blocks defers reading of th
 
 Data instance arguments may refer to computed values, in which case the attributes of the instance itself cannot be resolved until all of its arguments are defined. In this case, refreshing the data instance will be deferred until the "apply" phase, and all interpolations of the data instance attributes will show as "computed" in the plan since the values are not yet known.
 
-# Provider
+## Provider
 Providers allow Terraform to interact with cloud providers, SaaS providers, and other APIs.
 ``` terraform
 provider "google" {
@@ -362,7 +372,34 @@ provider "google" {
 }
 ```
 
-# State
+Provider accepts meta-argument `alias` for using the same provider with different configurations for different resources (e.g. different region).
+
+A provider block without `alias` is the default configuration for that provider, i.e. resources that don't set the `provider` meta-argument will use the default provider.
+``` terraform
+# The default provider configuration
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Additional provider configuration, can be reference as `aws.west`.
+provider "aws" {
+  alias  = "west"
+  region = "us-west-2"
+}
+```
+To refer to the alternative provider
+``` terraform
+resource "aws_instance" "foo" {
+  provider = aws.west
+
+  # ...
+}
+```
+
+
+If you want Terraform to support a new infrastructure service, you can create your own provider using Terraform's Go SDK. Once it is developed, it can be shared through Registry. Find out more [here](https://developer.hashicorp.com/terraform/registry/providers).
+
+## State
 State is the status of the managed infrastructure and configuration, which acts as a source of truth for your environment. By default, it is stored in a local file called `terraform.tfstate`. 
 
 Terraform uses state to determine which changes to make to your infrastructure. Prior to any operation, Terraform does a refresh to update the state with real infrastructure.
