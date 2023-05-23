@@ -1,7 +1,5 @@
 # React
-*(refer to [official documentation](https://reactjs.org/) and [beta documentation](https://beta.reactjs.org/))*
-
-*(There might be a migration of documentation site and hence the links above can get outdated)*
+*(refer to [official documentation](https://react.dev/))*
 
 React is a JavaScript library for building user interfaces. It can be added into local HTML file or browser with a script tag. New React project can be created with a toolchain or a framework which required node.js installation.
 

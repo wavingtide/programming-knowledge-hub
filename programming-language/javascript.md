@@ -17,3 +17,9 @@
 - [Node](node.md)
 - Express
 - Next
+
+# Concept
+## Promises, async/await
+*Callbacks* are functions that allow you to schedule asynchronous actions, which means the actions that we initiate now but they finish later
+
+A *promise* is a special Javascript object that links the "producing code" and the "consuming code" together.
