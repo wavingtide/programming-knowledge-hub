@@ -23,6 +23,7 @@
 - [`.gitignore` file](#gitignore-file)
 - [Moving around](#moving-around)
 - [Cherry pick](#cherry-pick)
+- [Git Stash](#git-stash)
 
 
 # Initiate a project
@@ -377,8 +378,14 @@ Show the differences between 2 branches
 git diff branch1..branch2
 ```
 
+Show the stat of difference between modified files and latest commit
+``` shell
+git diff --stat
+```
+![](https://i.imgur.com/RvBFU6O.png)
+
 # `.gitignore` file
-Add the file that git will ignore, eg: cache file, generated file, dependencies, etcs
+Add the file that git will ignore, eg: cache file, generated file, dependencies, etc
 
 Refer to https://github.com/github/gitignore
 
