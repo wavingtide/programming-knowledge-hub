@@ -28,7 +28,7 @@
 │   ├── [README.md](computer-science/README.md) (:bug:)\
 │   ├── [data-structure-and-algorithm.md](computer-science/data-structure-and-algorithm.md) (:bug:)\
 │   ├── [networking.md](computer-science/networking.md) (:snail:)\
-│   ├── [ssh.md](computer-science/ssh.md) (:bug:)\
+│   ├── [ssh.md](computer-science/ssh.md) (:butterfly:)\
 │   └── [system-design](computer-science/system-design/)\
 │       └── [twitter.md](computer-science/system-design/twitter.md) (:bug:)\
 ├── [data-engineer](data-engineer/)\
@@ -84,6 +84,7 @@
 │   │   ├── [README.md](data-science/natural-language-processing/README.md) (:bug:)\
 │   │   ├── [gensim.md](data-science/natural-language-processing/gensim.md) (:snail:)\
 │   │   ├── [keybert.md](data-science/natural-language-processing/keybert.md) (:butterfly:)\
+│   │   ├── [langchain.md](data-science/natural-language-processing/langchain.md) (:bug:)\
 │   │   ├── [nltk.md](data-science/natural-language-processing/nltk.md) (:bug:)\
 │   │   ├── [openai.md](data-science/natural-language-processing/openai.md) (:bee:)\
 │   │   └── [spacy.md](data-science/natural-language-processing/spacy.md) (:ant:)\
@@ -247,6 +248,7 @@
 │   │   ├── README.md
 │   │   ├── gensim.md
 │   │   ├── keybert.md
+│   │   ├── langchain.md
 │   │   ├── nltk.md
 │   │   ├── openai.md
 │   │   └── spacy.md
