@@ -1,4 +1,5 @@
 # Linux Commands
+*(mainly based on debian-based distros)*
 
 # Most Basic Linux Commands
 
@@ -200,6 +201,7 @@ df -h | tee disk_usage.txt
 
 
 ## Install Package from External Repositories
+*(refer to [linuxize](https://linuxize.com/post/how-to-add-apt-repository-in-ubuntu/))*
 Sometimes, the application isn't in the default repositories, and we may need to install software from a 3rd party repository.  
 
 Generally there are 3 steps involved:
@@ -270,7 +272,7 @@ There will be a `Warning: apt-key is deprecated. Manage keyring files in trusted
 ### tree
 Print the directory in a tree format.
 ``` bash
-# Install the package tree
+# install the package tree
 sudo apt install tree
 ```
 
@@ -279,5 +281,14 @@ sudo apt install tree
 tree ~ -L 2
 ```
 
-## Reference
-https://linuxize.com/post/how-to-add-apt-repository-in-ubuntu/
+### xclip
+Save text to clipboard
+``` bash
+# install the package xclip
+sudo apt install xclip
+```
+
+``` bash
+# copy SSH key to clipboard
+xclip -sel clip < ~/.ssh/id_ed25519.pub
+```
