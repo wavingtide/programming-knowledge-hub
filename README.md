@@ -90,7 +90,7 @@
 │   │   └── [spacy.md](data-science/natural-language-processing/spacy.md) (:ant:)\
 │   ├── [platform](data-science/platform/)\
 │   │   ├── [huggingface.md](data-science/platform/huggingface.md) (:snail:)\
-│   │   └── [kaggle.md](data-science/platform/kaggle.md) (:bug:)\
+│   │   └── [kaggle.md](data-science/platform/kaggle.md) (:ant:)\
 │   └── [time-series](data-science/time-series/)\
 │       └── [darts.md](data-science/time-series/darts.md) (:bug:)\
 ├── [devops](devops/)\

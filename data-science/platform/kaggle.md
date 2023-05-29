@@ -12,6 +12,8 @@ Kaggle is an online community of data scientist and machine learning practitione
   - [Installation](#installation)
   - [Authentication](#authentication)
   - [Usage](#usage)
+    - [Competitions](#competitions)
+    - [Datasets](#datasets)
 
 
 
@@ -44,9 +46,12 @@ If the `kaggle.json` does not exist at the right location, it will return an err
 ![](https://i.imgur.com/XzKur8j.png)
 
 ## Usage
-List the currently active competitions
-``` shell
-kaggle competitions list
-```
+### Competitions
+- `kaggle competitions list` - list the currently active competitions
+- `kaggle competitions download -c [COMPETITION]` - download files associated with a competition
+- `kaggle competitions submit -c [COMPETITION] -f [FILE] -m [MESSAGE]` - make a competition submission
+- `kaggle competitions submissions -c [COMPETITION]` - list all previous submissions to a competition you have entered
 
-
+### Datasets
+- `kaggle datasets list -s [KEYWORD]` - list datasets matching a search term
+- `kaggle datasets download -d [DATASET]` - download files associated with a dataset

@@ -50,6 +50,19 @@ chmod +x new_script.sh
 chmod u=rw,og=r new_file.txt
 ```
 
+Each write, read and execute permissions have the following number value
+- `r` (read) = 4
+- `w` (write) = 2
+- `x` (execute) = 1
+- no permission = 0
+
+The permissions number of a specific user class is specified by the sum of the values of the permissions for that group.
+
+``` shell
+# give the file owners read and write (4+2) permissions, and no permissions to group member and other users
+chmod 600 credentials.json
+```
+
 ### echo
 Repeat what you tell it to repeat
 ``` bash

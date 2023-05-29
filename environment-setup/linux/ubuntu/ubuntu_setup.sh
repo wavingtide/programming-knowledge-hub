@@ -24,3 +24,14 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
 # install node (lts version)
 nvm install --lts
+
+# install libraries
+sudo apt-get install lzma
+sudo apt-get install libbz2-dev
+sudo apt-get install libffi-dev
+sudo apt-get install liblzma-dev
+sudo apt-get install libncurses-dev
+sudo apt-get install libreadline-dev
+sudo apt-get install libsqlite3-dev
+sudo apt-get install libssl-dev
+sudo apt-get install tk-dev

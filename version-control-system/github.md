@@ -44,7 +44,7 @@ Login
 gh auth login
 ```
 
-
+![](https://i.imgur.com/IcHhD4M.png)
 
 
 
