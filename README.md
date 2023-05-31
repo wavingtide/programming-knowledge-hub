@@ -84,7 +84,7 @@
 │   │   ├── [README.md](data-science/natural-language-processing/README.md) (:bug:)\
 │   │   ├── [gensim.md](data-science/natural-language-processing/gensim.md) (:snail:)\
 │   │   ├── [keybert.md](data-science/natural-language-processing/keybert.md) (:butterfly:)\
-│   │   ├── [langchain.md](data-science/natural-language-processing/langchain.md) (:bug:)\
+│   │   ├── [langchain.md](data-science/natural-language-processing/langchain.md) (:star:)\
 │   │   ├── [nltk.md](data-science/natural-language-processing/nltk.md) (:bug:)\
 │   │   ├── [openai.md](data-science/natural-language-processing/openai.md) (:bee:)\
 │   │   └── [spacy.md](data-science/natural-language-processing/spacy.md) (:ant:)\
