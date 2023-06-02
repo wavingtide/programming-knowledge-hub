@@ -23,6 +23,9 @@ Main value propositions
   - [Memory](#memory)
   - [Chains](#chains)
   - [Agents](#agents)
+- [Use Cases](#use-cases)
+- [Python Library](#python-library)
+  - [Prompt Templates](#prompt-templates)
 
 # Schema
 - **Text** - `text.in`, `text.out`
@@ -95,7 +98,42 @@ Example:
 ## Agents
 An *agent* has access to a suite of tools, and can decide which, if any, of these tools to call depending on the user input.
 
-- Tool - Abstraction around function that make it easy for a language model to interact with it
-- Toolkit - Groups of tools that can be used/are necessary to solve a particular problem
-- Agent - Wrapper around a model, which takes in user input and returns a response corresponding to an *action* to take and a corresponding *action input*
-- Agent Executor - Responsible for calling the agent, getting back the action and action input, and carry out the subsequent actions
+| Component | Description |
+| -- | -- |
+| Tool | Abstraction around function that make it easy for a language model to interact with it |
+| Toolkit | Groups of tools that can be used/are necessary to solve a particular problem |
+| Agent | Wrapper around a model, which takes in user input and returns a response corresponding to an *action* to take and a corresponding *action input* |
+| Agent Executor | Responsible for calling the agent, getting back the action and action input, and carry out the subsequent actions |
+
+# Use Cases
+- Personal Assistants
+- Question Answering over Docs
+- Chatbots
+- Querying Tabular Data
+- Interacting with APIs
+- Extraction
+- Evaluation
+- Summarization
+
+# Python Library
+Installation
+``` shell
+pip install langchain
+# or
+conda install langchain -c conda-forge
+```
+
+## Prompt Templates
+``` python
+from langchain.prompts import PromptTemplate
+
+prompt = PromptTemplate(
+    input_variables=["product"],
+    template="What is a good name for a company that makes {product}?",
+)
+```
+``` python
+> print(prompt.format(product="colorful socks"))
+
+What is a good name for a company that makes colorful socks?
+```
