@@ -25,7 +25,10 @@ Main value propositions
   - [Agents](#agents)
 - [Use Cases](#use-cases)
 - [Python Library](#python-library)
+  - [LLM](#llm)
   - [Prompt Templates](#prompt-templates)
+  - [LLMChain](#llmchain)
+  - [Agent](#agent)
 
 # Schema
 - **Text** - `text.in`, `text.out`
@@ -100,7 +103,7 @@ An *agent* has access to a suite of tools, and can decide which, if any, of thes
 
 | Component | Description |
 | -- | -- |
-| Tool | Abstraction around function that make it easy for a language model to interact with it |
+| Tool | Abstraction around function that make it easy for a language model to interact with it, e.g. Google Search, Database Lookup, Python REPL |
 | Toolkit | Groups of tools that can be used/are necessary to solve a particular problem |
 | Agent | Wrapper around a model, which takes in user input and returns a response corresponding to an *action* to take and a corresponding *action input* |
 | Agent Executor | Responsible for calling the agent, getting back the action and action input, and carry out the subsequent actions |
@@ -123,7 +126,30 @@ pip install langchain
 conda install langchain -c conda-forge
 ```
 
+Set up one of the provider, `OpenAI`
+``` shell
+pip install openai
+```
+Set up api key using shell or python
+``` shell
+export OPENAI_API_KEY="..."
+```
+``` python
+import os
+os.environ["OPENAI_API_KEY"] = "..."
+```
+
+## LLM
+``` python
+from langchain.llms import OpenAI
+
+llm = OpenAI(temperature=0.9)
+text = "What would be a good company name for a company that makes colorful socks?"
+print(llm(text))
+```
+
 ## Prompt Templates
+Dymatically create prompt based on user input
 ``` python
 from langchain.prompts import PromptTemplate
 
@@ -136,4 +162,68 @@ prompt = PromptTemplate(
 > print(prompt.format(product="colorful socks"))
 
 What is a good name for a company that makes colorful socks?
+```
+
+## LLMChain
+Combine LLM and prompt templates
+``` python
+from langchain.chains import LLMChain
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
+
+
+llm = OpenAI(temperature=0.9)
+prompt = PromptTemplate(
+    input_variables=["product"],
+    template="What is a good name for a company that makes {product}?",
+)
+chain = LLMChain(llm=llm, prompt=prompt)
+
+chain.run("colorful socks")
+```
+
+## Agent
+Use LLM to determine which action to take and in what order
+
+Set up
+``` shell
+pip install google-search-results
+```
+``` python
+import os
+os.environ["SERPAPI_API_KEY"] = "..."
+```
+Run the agent
+``` python
+from langchain.agents import AgentType, initialize_agent, load_tools
+from langchain.llms import OpenAI
+
+# First, let's load the language model we're going to use to control the agent.
+llm = OpenAI(temperature=0)
+
+# Next, let's load some tools to use. Note that the `llm-math` tool uses an LLM, so we need to pass that in.
+tools = load_tools(["serpapi", "llm-math"], llm=llm)
+
+# Finally, let's initialize an agent with the tools, the language model, and the type of agent we want to use.
+agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+
+# Now let's test it out!
+agent.run("What was the high temperature in SF yesterday in Fahrenheit? What is that number raised to the .023 power?")
+```
+
+``` shell
+> Entering new AgentExecutor chain...
+ I need to find the temperature first, then use the calculator to raise it to the .023 power.
+Action: Search
+Action Input: "High temperature in SF yesterday"
+Observation: San Francisco Temperature Yesterday. Maximum temperature yesterday: 57 °F (at 1:56 pm) Minimum temperature yesterday: 49 °F (at 1:56 am) Average temperature ...
+Thought: I now have the temperature, so I can use the calculator to raise it to the .023 power.
+Action: Calculator
+Action Input: 57^.023
+Observation: Answer: 1.0974509573251117
+
+Thought: I now know the final answer
+Final Answer: The high temperature in SF yesterday in Fahrenheit raised to the .023 power is 1.0974509573251117.
+
+> Finished chain.
 ```
