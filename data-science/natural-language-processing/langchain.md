@@ -29,6 +29,9 @@ Main value propositions
   - [Prompt Templates](#prompt-templates)
   - [LLMChain](#llmchain)
   - [Agent](#agent)
+  - [Memory](#memory-1)
+  - [Chat Model](#chat-model)
+- [Concepts Used for Developing LLM applications](#concepts-used-for-developing-llm-applications)
 
 # Schema
 - **Text** - `text.in`, `text.out`
@@ -193,7 +196,7 @@ pip install google-search-results
 import os
 os.environ["SERPAPI_API_KEY"] = "..."
 ```
-Run the agent
+Initialize the agent with LLM and tools and run the agent
 ``` python
 from langchain.agents import AgentType, initialize_agent, load_tools
 from langchain.llms import OpenAI
@@ -227,3 +230,84 @@ Final Answer: The high temperature in SF yesterday in Fahrenheit raised to the .
 
 > Finished chain.
 ```
+
+## Memory
+Using `ConversationChain` to remember information about previous interactions.
+``` python
+from langchain import OpenAI, ConversationChain
+
+llm = OpenAI(temperature=0)
+conversation = ConversationChain(llm=llm, verbose=True)
+
+output = conversation.predict(input="Hi there!")
+print(output)
+```
+
+``` python
+output = conversation.predict(input="I'm doing well! Just having a conversation with an AI.")
+print(output)
+```
+``` shell
+> Entering new chain...
+Prompt after formatting:
+The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
+
+Current conversation:
+
+Human: Hi there!
+AI:  Hello! How are you today?
+Human: I'm doing well! Just having a conversation with an AI.
+AI:
+
+> Finished chain.
+" That's great! What would you like to talk about?"
+```
+
+## Chat Model
+``` python
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import (
+    AIMessage,
+    HumanMessage,
+    SystemMessage
+)
+```
+You can pass in one or multiple messages
+``` python
+messages = [
+    SystemMessage(content="You are a helpful assistant that translates English to French."),
+    HumanMessage(content="I love programming.")
+]
+chat(messages)
+# -> AIMessage(content="J'aime programmer.", additional_kwargs={})
+```
+You can also generate completions for multiple sets of messages
+``` python
+batch_messages = [
+    [
+        SystemMessage(content="You are a helpful assistant that translates English to French."),
+        HumanMessage(content="I love programming.")
+    ],
+    [
+        SystemMessage(content="You are a helpful assistant that translates English to French."),
+        HumanMessage(content="I love artificial intelligence.")
+    ],
+]
+result = chat.generate(batch_messages)
+result
+# -> LLMResult(generations=[[ChatGeneration(text="J'aime programmer.", generation_info=None, message=AIMessage(content="J'aime programmer.", additional_kwargs={}))], [ChatGeneration(text="J'aime l'intelligence artificielle.", generation_info=None, message=AIMessage(content="J'aime l'intelligence artificielle.", additional_kwargs={}))]], llm_output={'token_usage': {'prompt_tokens': 57, 'completion_tokens': 20, 'total_tokens': 77}})
+```
+
+# Concepts Used for Developing LLM applications
+*(refer to [langchain documentation](https://python.langchain.com/en/latest/getting_started/concepts.html))*
+| Concepts | Description |
+| -- | -- |
+| **Chain of Thought** | Prompting technique used to encourage the model to generate a series of intermediate reasoning steps (e.g. include "Let's think step-by-step" in the prompt.) |
+| **Action Plan Generation** | Prompting technique that used a language model to generate actions to take, which can be fed back into the language model to generate a subsequent action |
+| **ReAct** | Prompting technique that combine **Chain of Thought** prompting and action plan generation. Induces the model to think about what action to take, then take it |
+| **Self-Ask** | Builds on top of **Chain of Thought** prompting. The model explicitly asks itself follow-up questions, which are then answered by an external search engine (e.g. Google Search) |
+| **Prompt Chaining** | Combine multiple LLM calls, with the output of one-step being the input to the next |
+| **Memetic Proxy** | Encouraging the LLM to respond in a certain way framing the dicussion in a context that the model knows of and that will result in that type of response (e.g. conversation between teacher and student) |
+| **Self Consistency** | Decoding strategy that samples a diverse set of reasonong paths and then selects the most consistent answer. It is most effective when combined with **Chain of Thought** prompting |
+| **Inception (First Person Instruction)** | Encouraging the model to think a certain way by including the start of the model's response in the prompt |
+| **MemPrompt** | Maintain a memory of errors and user feedbacks to prevent repetition of mistakes |
