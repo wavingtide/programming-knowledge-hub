@@ -37,6 +37,7 @@
 │   │   ├── [README.md](data-engineer/data-pipeline-orchestration/README.md) (:bug:)\
 │   │   ├── [airflow.md](data-engineer/data-pipeline-orchestration/airflow.md) (:bug:)\
 │   │   ├── [argo.md](data-engineer/data-pipeline-orchestration/argo.md) (:bug:)\
+│   │   ├── [dagster.md](data-engineer/data-pipeline-orchestration/dagster.md) (:snail:)\
 │   │   └── [prefect.md](data-engineer/data-pipeline-orchestration/prefect.md) (:bug:)\
 │   ├── [database](data-engineer/database/)\
 │   │   ├── [README.md](data-engineer/database/README.md) (:bug:)\
@@ -84,7 +85,7 @@
 │   │   ├── [README.md](data-science/natural-language-processing/README.md) (:bug:)\
 │   │   ├── [gensim.md](data-science/natural-language-processing/gensim.md) (:snail:)\
 │   │   ├── [keybert.md](data-science/natural-language-processing/keybert.md) (:butterfly:)\
-│   │   ├── [langchain.md](data-science/natural-language-processing/langchain.md) (:star:)\
+│   │   ├── [langchain.md](data-science/natural-language-processing/langchain.md) (:ant:)\
 │   │   ├── [nltk.md](data-science/natural-language-processing/nltk.md) (:bug:)\
 │   │   ├── [openai.md](data-science/natural-language-processing/openai.md) (:bee:)\
 │   │   └── [spacy.md](data-science/natural-language-processing/spacy.md) (:ant:)\
@@ -201,6 +202,7 @@
 │   │   ├── README.md
 │   │   ├── airflow.md
 │   │   ├── argo.md
+│   │   ├── dagster.md
 │   │   └── prefect.md
 │   ├── database
 │   │   ├── README.md
