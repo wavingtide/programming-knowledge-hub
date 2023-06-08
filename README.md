@@ -53,6 +53,7 @@
 │   │   └── [vector-database](data-engineer/database/vector-database/)\
 │   │       └── [pinecone.md](data-engineer/database/vector-database/pinecone.md) (:bug:)\
 │   ├── [dbt.md](data-engineer/dbt.md) (:ant:)\
+│   ├── [great-expectations.md](data-engineer/great-expectations.md) (:snail:)\
 │   ├── [kafka.md](data-engineer/kafka.md) (:bug:)\
 │   └── [web-scraping](data-engineer/web-scraping/)\
 │       ├── [README.md](data-engineer/web-scraping/README.md) (:bug:)\
