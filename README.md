@@ -219,6 +219,7 @@
 │   │   └── vector-database
 │   │       └── pinecone.md
 │   ├── dbt.md
+│   ├── great-expectations.md
 │   ├── kafka.md
 │   └── web-scraping
 │       ├── README.md

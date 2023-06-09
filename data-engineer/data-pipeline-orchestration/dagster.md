@@ -1,4 +1,5 @@
 # Dagster
+*(refer to [official documentation](https://docs.dagster.io/getting-started))*
 
 Dagster is an orchestrator that's designed for developing and maintaining data assets.
 
