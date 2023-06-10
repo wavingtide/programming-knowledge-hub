@@ -104,3 +104,5 @@ project_config = DataContextConfig(
 
 context = EphemeralDataContext(project_config=project_config)
 ```
+
+You can configure credentials in the file `great_expectations/uncommitted/config_variables.yml`. It can work with secret manager from AWS, GCP, Azure.

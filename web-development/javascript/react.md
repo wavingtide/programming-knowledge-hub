@@ -14,8 +14,6 @@ React is a JavaScript library for building user interfaces. It can be added into
   - [Props](#props)
 - [Normal Workflow](#normal-workflow)
 - [Setting up a React Environment](#setting-up-a-react-environment)
-- [Production-grade React Framework](#production-grade-react-framework)
-  - [Next.js](#nextjs)
 
 
 # Main Concepts
@@ -161,38 +159,4 @@ npm test
 Removes this tool and copies build dependencies, configuration files and scripts into the app direcoty. If you do this, you can't go back.
 ``` shell
 npm run eject
-```
-
-
-# Production-grade React Framework
-## Next.js
-``` shell
-npx create-next-app
-```
-
-![](https://i.imgur.com/vMAIQb9.png)
-
-The project directory is as follows
-``` shell
-.
-├── README.md
-├── next-env.d.ts
-├── next.config.js
-├── node_modules
-├── package-lock.json
-├── package.json
-├── pages
-│   ├── _app.tsx
-│   ├── _document.tsx
-│   ├── api
-│   └── index.tsx
-├── postcss.config.js
-├── public
-│   ├── favicon.ico
-│   ├── next.svg
-│   └── vercel.svg
-├── styles
-│   └── globals.css
-├── tailwind.config.js
-└── tsconfig.json
 ```
