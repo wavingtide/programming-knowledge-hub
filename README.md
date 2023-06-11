@@ -27,6 +27,7 @@
 ├── [computer-science](computer-science/)\
 │   ├── [README.md](computer-science/README.md) (:bug:)\
 │   ├── [data-structure-and-algorithm.md](computer-science/data-structure-and-algorithm.md) (:bug:)\
+│   ├── [design-pattern.md](software-engineering-philosophy/design-pattern.md) (:star:)\
 │   ├── [networking.md](computer-science/networking.md) (:snail:)\
 │   ├── [ssh.md](computer-science/ssh.md) (:butterfly:)\
 │   └── [system-design](computer-science/system-design/)\
@@ -153,7 +154,6 @@
 ├── [software-engineering-philosophy](software-engineering-philosophy/)\
 │   ├── [contribute-to-open-source.md](software-engineering-philosophy/contribute-to-open-source.md) (:bug:)\
 │   ├── [design-document.md](software-engineering-philosophy/design-document.md) (:bug:)\
-│   ├── [design-pattern.md](software-engineering-philosophy/design-pattern.md) (:bug:)\
 │   ├── [design-principle.md](software-engineering-philosophy/design-principle.md) (:ant:)\
 │   ├── [documentation](software-engineering-philosophy/documentation/)\
 │   │   └── [markdown.md](software-engineering-philosophy/documentation/markdown.md) (:bug:)\
@@ -168,6 +168,7 @@
 └── [web-development](web-development/)\
     ├── [README.md](web-development/README.md) (:bug:)\
     ├── [javascript](web-development/javascript/)\
+    │   ├── [nextjs.md](web-development/javascript/nextjs.md) (:snail:)\
     │   ├── [node.md](web-development/javascript/node.md) (:snail:)\
     │   └── [react.md](web-development/javascript/react.md) (:snail:)\
     ├── [python](web-development/python/)\
@@ -193,6 +194,7 @@
 ├── computer-science
 │   ├── README.md
 │   ├── data-structure-and-algorithm.md
+│   ├── design-pattern.md
 │   ├── networking.md
 │   ├── ssh.md
 │   └── system-design
@@ -319,7 +321,6 @@
 ├── software-engineering-philosophy
 │   ├── contribute-to-open-source.md
 │   ├── design-document.md
-│   ├── design-pattern.md
 │   ├── design-principle.md
 │   ├── documentation
 │   │   └── markdown.md
@@ -334,6 +335,7 @@
 └── web-development
     ├── README.md
     ├── javascript
+    │   ├── nextjs.md
     │   ├── node.md
     │   └── react.md
     ├── python
