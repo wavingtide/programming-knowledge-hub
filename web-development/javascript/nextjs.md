@@ -46,3 +46,27 @@ File with name  `index` is automatically routed to the root of the directory. (e
 
 ### Nested Routes
 The router supports nested folder structures. (e.g. `pages/blog/first-post.js` -> `/blog/first-post`)
+
+## Dynamic Route
+A dynamic segment can be created by wrapping a folder's name in square brackets: `[foldername]`
+
+Example: `pages/blog/[slug].js`
+``` javascript
+import { useRouter } from 'next/router'
+ 
+export default function Page() {
+  const router = useRouter()
+  return <p>Post: {router.query.slug}</p>
+}
+```
+
+### Catch-all Segments
+Dynamic segments can be extended to catch-all subsequent segments by adding an ellipsis inside the brackets `[...fileName]`.
+
+Example: `pages/shop/[...slug].js` will catch `/shop/clothes`, `/shop/clothes/top`, `/shop/clothes/top/shirts`
+
+
+### Optional Catch-all Segments
+Catch-all segments can be made optional by including the parameter in double square bracket, `[[...fileName]]`.
+
+Example: `pages/shop/[[...slug]].js` will catch the same items as catch-all segments, and also catch `/shop`.

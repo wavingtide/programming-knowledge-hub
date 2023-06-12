@@ -1,4 +1,5 @@
 # Design Pattern
+*(based on [refactoring guru](https://refactoring.guru/))*
 
 # Table of Contents
 - [Design Pattern](#design-pattern)
