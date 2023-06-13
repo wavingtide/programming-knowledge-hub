@@ -70,3 +70,12 @@ Example: `pages/shop/[...slug].js` will catch `/shop/clothes`, `/shop/clothes/to
 Catch-all segments can be made optional by including the parameter in double square bracket, `[[...fileName]]`.
 
 Example: `pages/shop/[[...slug]].js` will catch the same items as catch-all segments, and also catch `/shop`.
+
+
+
+
+`getStaticProps`
+`getStaticPaths`
+
+`getServerSideProps`
+

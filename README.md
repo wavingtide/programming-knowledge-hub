@@ -27,7 +27,7 @@
 ├── [computer-science](computer-science/)\
 │   ├── [README.md](computer-science/README.md) (:bug:)\
 │   ├── [data-structure-and-algorithm.md](computer-science/data-structure-and-algorithm.md) (:bug:)\
-│   ├── [design-pattern.md](software-engineering-philosophy/design-pattern.md) (:star:)\
+│   ├── [design-pattern.md](software-engineering-philosophy/design-pattern.md) (:snail:)\
 │   ├── [networking.md](computer-science/networking.md) (:snail:)\
 │   ├── [ssh.md](computer-science/ssh.md) (:butterfly:)\
 │   └── [system-design](computer-science/system-design/)\
